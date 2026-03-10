@@ -474,7 +474,9 @@ textarea.form-input { resize:vertical; min-height:90px; }
     <div id="cr-form-section">
       <div class="form-group"><label class="form-label">Rattacher à un bien</label><select class="form-input" id="cr-bien-select"><option value="">— Aucun bien sélectionné —</option></select></div>
       <div class="divider"></div>
-      <div style="font-size:12px;font-weight:600;color:var(--gris);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:16px">Acheteur</div>
+      <div style="font-size:12px;font-weight:600;color:var(--gris);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:12px">Acheteur</div>
+      <div class="form-group"><label class="form-label">Choisir un contact existant <span style="font-weight:400;color:var(--gris)">(optionnel)</span></label><select class="form-input" id="cr-contact-select" onchange="prefillFromContact(this.value)"><option value="">— Nouveau visiteur —</option></select></div>
+      <div class="divider" style="margin:12px 0"></div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Nom</label><input class="form-input" id="cr-visiteur" placeholder="M. et Mme Dupont"></div>
         <div class="form-group"><label class="form-label">Téléphone</label><input class="form-input" id="cr-tel" placeholder="06 12 34 56 78"></div>
@@ -491,7 +493,10 @@ textarea.form-input { resize:vertical; min-height:90px; }
         <div class="form-group"><label class="form-label">Secteur</label><input class="form-input" id="cr-secteur" placeholder="Paris 11e, Montreuil..."></div>
         <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="cr-date" type="date"></div>
       </div>
-      <div class="form-group"><label class="form-label">Intérêt</label><select class="form-input" id="cr-interest"><option value="high">🟢 Très intéressé</option><option value="med">🟡 Intéressé</option><option value="low">🔴 Peu intéressé</option></select></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Intérêt</label><select class="form-input" id="cr-interest"><option value="high">🟢 Très intéressé</option><option value="med">🟡 Intéressé</option><option value="low">🔴 Peu intéressé</option></select></div>
+        <div class="form-group"><label class="form-label">Délai d'achat</label><select class="form-input" id="cr-delai"><option value="">— Non précisé —</option><option value="urgent">🔥 Urgent (< 1 mois)</option><option value="court">⚡ Court terme (1-3 mois)</option><option value="moyen">📅 Moyen terme (3-6 mois)</option><option value="long">🕐 Long terme (6 mois+)</option><option value="flou">🤷 Pas encore décidé</option></select></div>
+      </div>
       <div class="form-group"><label class="form-label">Impressions (en vrac)</label><textarea class="form-input" id="cr-impressions" style="min-height:100px" placeholder="Ex: Couple 35 ans, attirés par la luminosité, inquiets du bruit..."></textarea></div>
       <div class="modal-footer" style="margin-top:0">
         <button class="btn btn-ghost" onclick="closeModal('modal-cr')">Annuler</button>
@@ -697,10 +702,25 @@ function openModalCR(bienId){
   document.getElementById('cr-output-section').style.display='none';
   ['cr-visiteur','cr-tel','cr-email','cr-age','cr-budget','cr-secteur','cr-impressions'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('cr-date').value=new Date().toISOString().split('T')[0];
-  document.getElementById('cr-type-recherche').value='';document.getElementById('cr-interest').value='high';generatedCR={};
+  document.getElementById('cr-type-recherche').value='';document.getElementById('cr-interest').value='high';document.getElementById('cr-delai').value='';generatedCR={};
   const sel=document.getElementById('cr-bien-select');sel.innerHTML='<option value="">— Aucun bien sélectionné —</option>';
   state.biens.forEach(b=>{const o=document.createElement('option');o.value=b.id;o.textContent=b.adresse+' ('+b.type+')';if(b.id===bienId)o.selected=true;sel.appendChild(o);});
+  const csel=document.getElementById('cr-contact-select');csel.innerHTML='<option value="">— Nouveau visiteur —</option>';
+  const acheteurs=getAllContacts().filter(c=>c.role==='acheteur');
+  acheteurs.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.nom+(c.budget?' · '+c.budget:'');csel.appendChild(o);});
   openModal('modal-cr');
+}
+
+function prefillFromContact(contactId){
+  if(!contactId)return;
+  const c=getAllContacts().find(c=>c.id===contactId);if(!c)return;
+  if(c.nom)document.getElementById('cr-visiteur').value=c.nom;
+  if(c.tel)document.getElementById('cr-tel').value=c.tel;
+  if(c.email)document.getElementById('cr-email').value=c.email;
+  if(c.age)document.getElementById('cr-age').value=c.age;
+  if(c.budget)document.getElementById('cr-budget').value=c.budget;
+  if(c.typeRecherche)document.getElementById('cr-type-recherche').value=c.typeRecherche;
+  if(c.secteur)document.getElementById('cr-secteur').value=c.secteur;
 }
 
 // ── SAVE BIEN ──
@@ -763,12 +783,13 @@ function showContactDetail(contactId){
 
 async function genererCR(){
   const bienId=document.getElementById('cr-bien-select').value;const bien=state.biens.find(b=>b.id===bienId);
-  pendingCR={bienId,visiteur:document.getElementById('cr-visiteur').value||'Visiteur',tel:document.getElementById('cr-tel').value,email:document.getElementById('cr-email').value,age:document.getElementById('cr-age').value,budget:document.getElementById('cr-budget').value,typeRecherche:document.getElementById('cr-type-recherche').value,secteur:document.getElementById('cr-secteur').value,date:document.getElementById('cr-date').value,interest:document.getElementById('cr-interest').value,impressions:document.getElementById('cr-impressions').value};
+  pendingCR={bienId,visiteur:document.getElementById('cr-visiteur').value||'Visiteur',tel:document.getElementById('cr-tel').value,email:document.getElementById('cr-email').value,age:document.getElementById('cr-age').value,budget:document.getElementById('cr-budget').value,typeRecherche:document.getElementById('cr-type-recherche').value,secteur:document.getElementById('cr-secteur').value,date:document.getElementById('cr-date').value,interest:document.getElementById('cr-interest').value,delai:document.getElementById('cr-delai').value,impressions:document.getElementById('cr-impressions').value};
   document.getElementById('cr-form-section').style.display='none';document.getElementById('cr-output-section').style.display='block';
   document.getElementById('cr-output-text').innerHTML=`<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div> Génération en cours...</div>`;
   currentCRTab='email';document.querySelectorAll('#modal-cr .cr-tab').forEach((t,i)=>t.classList.toggle('active',i===0));
   const bienInfo=bien?`Bien : ${bien.type} au ${bien.adresse}, ${bien.surface||'?'}m², ${bien.pieces||'?'} pièces, prix ${bien.prix||'?'}. Vendeur : ${bien.vendeur||'non précisé'}.`:'Bien non précisé.';
-  const prompt=`Tu es un assistant pour agents immobiliers français. Génère un compte-rendu de visite professionnel.\n${bienInfo}\nVisiteur : ${pendingCR.visiteur}${pendingCR.age?' ('+pendingCR.age+')':''}\nBudget : ${pendingCR.budget||'non précisé'} — Type recherché : ${pendingCR.typeRecherche||'non précisé'}\nDate : ${pendingCR.date} — Impressions : ${pendingCR.impressions||'aucune précision'}\n\nRéponds UNIQUEMENT avec ce JSON valide sans backticks :\n{"email":"Email complet avec Objet: en 1ère ligne, corps pro et chaleureux","pdf":"CR structuré : Informations visite / Profil visiteur / Points positifs / Points d'attention / Prochaines étapes","court":"Version courte 3-4 lignes pour WhatsApp/SMS au vendeur"}`;
+  const delaiLabel={'urgent':'Urgent < 1 mois','court':'Court terme 1-3 mois','moyen':'Moyen terme 3-6 mois','long':'Long terme 6 mois+','flou':'Pas encore décidé'};
+  const prompt=`Tu es un assistant pour agents immobiliers français. Génère un compte-rendu de visite professionnel.\n${bienInfo}\nVisiteur : ${pendingCR.visiteur}${pendingCR.age?' ('+pendingCR.age+')':''}\nBudget : ${pendingCR.budget||'non précisé'} — Type recherché : ${pendingCR.typeRecherche||'non précisé'} — Délai : ${delaiLabel[pendingCR.delai]||'non précisé'}\nDate : ${pendingCR.date} — Impressions : ${pendingCR.impressions||'aucune précision'}\n\nRéponds UNIQUEMENT avec ce JSON valide sans backticks :\n{"email":"Email complet avec Objet: en 1ère ligne, corps pro et chaleureux","pdf":"CR structuré : Informations visite / Profil visiteur / Points positifs / Points d'attention / Prochaines étapes","court":"Version courte 3-4 lignes pour WhatsApp/SMS au vendeur"}`;
   try{
     const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
     const data=await res.json();
@@ -784,7 +805,7 @@ function telechargerCR(){const a=document.createElement('a');a.href=URL.createOb
 
 async function sauvegarderCR(){
   if(!pendingCR)return;
-  const visite={user_id:currentUser.id,bien_id:pendingCR.bienId||null,visiteur:pendingCR.visiteur,tel:pendingCR.tel,email:pendingCR.email,age:pendingCR.age,budget:pendingCR.budget,type_recherche:pendingCR.typeRecherche,secteur:pendingCR.secteur,date:pendingCR.date,interest:pendingCR.interest,impressions:pendingCR.impressions,cr_email:generatedCR.email||'',cr_pdf:generatedCR.pdf||'',cr_court:generatedCR.court||''};
+  const visite={user_id:currentUser.id,bien_id:pendingCR.bienId||null,visiteur:pendingCR.visiteur,tel:pendingCR.tel,email:pendingCR.email,age:pendingCR.age,budget:pendingCR.budget,type_recherche:pendingCR.typeRecherche,secteur:pendingCR.secteur,date:pendingCR.date,interest:pendingCR.interest,delai:pendingCR.delai||null,impressions:pendingCR.impressions,cr_email:generatedCR.email||'',cr_pdf:generatedCR.pdf||'',cr_court:generatedCR.court||''};
   const{data,error}=await supa.from('visites').insert(visite).select().single();
   if(error){showToast('Erreur : '+error.message);return;}
   state.visites.unshift(dbToVisite(data));closeModal('modal-cr');showToast('✓ CR sauvegardé');
