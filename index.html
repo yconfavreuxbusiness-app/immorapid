@@ -263,6 +263,16 @@ textarea.form-input { resize:vertical; min-height:90px; }
 .dots span:nth-child(2) { animation-delay:0.18s; }
 .dots span:nth-child(3) { animation-delay:0.36s; }
 @keyframes bounce { 0%,100%{transform:translateY(0);opacity:0.35;}50%{transform:translateY(-7px);opacity:1;} }
+.vendu-badge { position:absolute; top:12px; right:12px; background:linear-gradient(135deg,#2d6a4f,#52b788); color:white; font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:4px 10px; border-radius:100px; }
+.bien-card { position:relative; }
+.historique-item { display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-bottom:1px solid var(--gris-light); }
+.historique-item:last-child { border-bottom:none; }
+.historique-dot { width:8px; height:8px; border-radius:50%; background:var(--or); flex-shrink:0; margin-top:5px; }
+.historique-champ { font-size:12px; font-weight:600; color:var(--gris); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px; }
+.historique-valeurs { font-size:13px; color:var(--noir); }
+.historique-valeurs .old { color:var(--danger); text-decoration:line-through; margin-right:8px; }
+.historique-valeurs .new { color:var(--success); font-weight:500; }
+.historique-date { font-size:11px; color:var(--gris); margin-top:2px; }
 .empty-state { text-align:center; padding:60px 40px; color:var(--gris); }
 .empty-icon { font-size:40px; margin-bottom:16px; opacity:0.4; }
 .empty-title { font-size:16px; font-weight:500; color:var(--noir); margin-bottom:8px; }
@@ -377,6 +387,7 @@ textarea.form-input { resize:vertical; min-height:90px; }
         <button class="nav-item" onclick="showView('biens',this)"><span class="icon">🏠</span>Mes biens</button>
         <button class="nav-item" onclick="showView('visites',this)"><span class="icon">📋</span>Toutes les visites</button>
         <button class="nav-item" onclick="showView('contacts',this)"><span class="icon">👥</span>Contacts</button>
+        <button class="nav-item" onclick="showView('vendus',this)"><span class="icon">🏆</span>Biens vendus</button>
         <div class="nav-section-label">Actions</div>
         <button class="nav-item" onclick="openModalCR(null)"><span class="icon">✦</span>Générer un CR</button>
       </nav>
@@ -420,6 +431,7 @@ textarea.form-input { resize:vertical; min-height:90px; }
         </div>
         <div class="view" id="view-contact-detail"><button class="back-btn" id="contact-back">← Retour aux contacts</button><div id="contact-detail-content"></div></div>
         <div class="view" id="view-cr"><button class="back-btn" id="cr-back-btn">← Retour</button><div id="cr-content"></div></div>
+        <div class="view" id="view-vendus"><div class="bien-grid" id="vendus-grid"></div></div>
       </div>
     </main>
   </div>
@@ -483,6 +495,66 @@ textarea.form-input { resize:vertical; min-height:90px; }
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-bien')">Annuler</button>
       <button class="btn btn-primary" onclick="saveBien()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Modifier Bien -->
+<div class="modal-overlay" id="modal-modifier-bien">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="modal-modifier-title">Modifier le bien</div><button class="modal-close" onclick="closeModal('modal-modifier-bien')">✕</button></div>
+    <input type="hidden" id="modifier-bien-id">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-input" id="modifier-type"><option>Appartement</option><option>Maison</option><option>Studio</option><option>Loft</option><option>Villa</option></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Statut</label>
+        <select class="form-input" id="modifier-statut"><option value="actif">🟢 Actif</option><option value="vendu">🏆 Vendu</option><option value="suspendu">⏸ Suspendu</option></select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Prix</label>
+      <div class="form-input-wrap"><span class="prefix">€</span><input class="form-input" id="modifier-prix" placeholder="350 000" oninput="formatPrix(this)"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Adresse <span class="req">*</span></label>
+      <input class="form-input" id="modifier-adresse" placeholder="12 rue des Lilas, Paris 11e">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Surface (m²)</label>
+        <input class="form-input" id="modifier-surface" type="number" placeholder="65" min="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Pièces</label>
+        <input class="form-input" id="modifier-pieces" type="number" placeholder="3" min="0">
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="form-section-title">Vendeur</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Nom <span class="req">*</span></label>
+        <input class="form-input" id="modifier-vendeur" placeholder="M. et Mme Martin">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Téléphone <span class="req">*</span></label>
+        <input class="form-input" id="modifier-vendeur-tel" placeholder="06 12 34 56 78" oninput="formatTel(this)">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-input" id="modifier-vendeur-email" placeholder="martin@email.com" type="email">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-input" id="modifier-notes" placeholder="État général, particularités..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-modifier-bien')">Annuler</button>
+      <button class="btn btn-primary" onclick="modifierBien()">Enregistrer les modifications</button>
     </div>
   </div>
 </div>
@@ -654,7 +726,7 @@ const SUPA_KEY = 'sb_publishable_nuxYyTV_wWOxu6s7jfbA5g_7LcTF-lh';
 const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 
 let currentUser = null;
-let state = { biens:[], visites:[], contacts:[] };
+let state = { biens:[], visites:[], contacts:[], historique:[] };
 let currentBienId = null;
 let currentCRTab = 'email';
 let crDetailTab = 'email';
@@ -761,16 +833,18 @@ async function init() {
 // ── DATA ──
 async function loadAll() {
   const uid = currentUser.id;
-  const [b,v,c] = await Promise.all([
+  const [b,v,c,h] = await Promise.all([
     supa.from('biens').select('*').eq('user_id',uid).order('created_at',{ascending:false}),
     supa.from('visites').select('*').eq('user_id',uid).order('saved_at',{ascending:false}),
     supa.from('contacts').select('*').eq('user_id',uid).order('created_at',{ascending:false}),
+    supa.from('bien_historique').select('*').eq('user_id',uid).order('created_at',{ascending:false}),
   ]);
   state.biens = (b.data||[]).map(dbToBien);
   state.visites = (v.data||[]).map(dbToVisite);
   state.contacts = (c.data||[]).map(dbToContact);
+  state.historique = (h.data||[]);
 }
-function dbToBien(r){ return {id:r.id,type:r.type,adresse:r.adresse,prix:r.prix,surface:r.surface,pieces:r.pieces,vendeur:r.vendeur,vendeurTel:r.vendeur_tel,vendeurEmail:r.vendeur_email,notes:r.notes,createdAt:r.created_at}; }
+function dbToBien(r){ return {id:r.id,type:r.type,adresse:r.adresse,prix:r.prix,surface:r.surface,pieces:r.pieces,vendeur:r.vendeur,vendeurTel:r.vendeur_tel,vendeurEmail:r.vendeur_email,notes:r.notes,statut:r.statut||'actif',createdAt:r.created_at}; }
 function dbToVisite(r){ return {id:r.id,bienId:r.bien_id,visiteur:r.visiteur,tel:r.tel,email:r.email,age:r.age,budget:r.budget,typeRecherche:r.type_recherche,secteur:r.secteur,date:r.date,interest:r.interest,delai:r.delai||'',impressions:r.impressions,cr:{email:r.cr_email,pdf:r.cr_pdf,court:r.cr_court},savedAt:r.saved_at}; }
 function dbToContact(r){ return {id:r.id,auto:false,role:r.role,nom:r.nom,tel:r.tel,email:r.email,age:r.age,budget:r.budget,typeRecherche:r.type_recherche,secteur:r.secteur,delai:r.delai||'',notes:r.notes,createdAt:r.created_at}; }
 
@@ -819,6 +893,7 @@ function showView(name, btn){
   if(name==='biens'){ renderBiens(); addBtn(actions,'+ Nouveau bien',openModalBien,'btn-primary'); }
   if(name==='visites') renderVisites();
   if(name==='contacts'){ renderContacts(); addBtn(actions,'+ Nouveau contact',openModalContact,'btn-primary'); }
+  if(name==='vendus'){ renderVendus(); }
 }
 function addBtn(c,l,fn,cls){ const b=document.createElement('button'); b.className='btn '+cls; b.textContent=l; b.onclick=fn; c.appendChild(b); }
 function openModal(id){ document.getElementById(id).classList.add('open'); }
@@ -839,6 +914,73 @@ function openModalContact(){
 function updateDelaiLabel(role){
   const label = document.getElementById('mc-delai-label');
   if(label) label.textContent = role==='vendeur' ? "Délai de vente" : "Délai d'achat";
+}
+
+// ── MODIFIER BIEN ──
+function openModalModifier(bienId) {
+  const b = state.biens.find(b=>b.id===bienId); if(!b) return;
+  document.getElementById('modifier-bien-id').value = bienId;
+  document.getElementById('modifier-type').value = b.type||'Appartement';
+  document.getElementById('modifier-statut').value = b.statut||'actif';
+  document.getElementById('modifier-prix').value = b.prix ? b.prix.replace(' €','').replace(/\s/g,'') : '';
+  document.getElementById('modifier-adresse').value = b.adresse||''
+  document.getElementById('modifier-surface').value = b.surface||'';
+  document.getElementById('modifier-pieces').value = b.pieces||'';
+  document.getElementById('modifier-vendeur').value = b.vendeur||'';
+  document.getElementById('modifier-vendeur-tel').value = b.vendeurTel||'';
+  document.getElementById('modifier-vendeur-email').value = b.vendeurEmail||'';
+  document.getElementById('modifier-notes').value = b.notes||'';
+  openModal('modal-modifier-bien');
+}
+
+async function modifierBien() {
+  const bienId = document.getElementById('modifier-bien-id').value;
+  const ok = validateRequired([{id:'modifier-adresse'},{id:'modifier-vendeur'},{id:'modifier-vendeur-tel'}]);
+  if(!ok){ showToast('Remplissez les champs obligatoires (*)'); return; }
+  const b = state.biens.find(b=>b.id===bienId); if(!b) return;
+  const prixRaw = getPrixRaw('modifier-prix');
+  const newData = {
+    type: document.getElementById('modifier-type').value,
+    statut: document.getElementById('modifier-statut').value,
+    adresse: document.getElementById('modifier-adresse').value.trim(),
+    prix: prixRaw ? prixRaw.toLocaleString('fr-FR')+' €' : '',
+    surface: document.getElementById('modifier-surface').value,
+    pieces: document.getElementById('modifier-pieces').value,
+    vendeur: document.getElementById('modifier-vendeur').value.trim(),
+    vendeur_tel: document.getElementById('modifier-vendeur-tel').value.trim(),
+    vendeur_email: document.getElementById('modifier-vendeur-email').value.trim(),
+    notes: document.getElementById('modifier-notes').value.trim()
+  };
+  // Detect changes and save historique
+  const champLabels = {prix:'Prix',adresse:'Adresse',type:'Type',statut:'Statut',surface:'Surface',pieces:'Pièces',vendeur:'Vendeur'};
+  const changes = [];
+  if(b.prix !== newData.prix && newData.prix) changes.push({champ:'Prix', ancienne:b.prix||'—', nouvelle:newData.prix});
+  if(b.adresse !== newData.adresse) changes.push({champ:'Adresse', ancienne:b.adresse||'—', nouvelle:newData.adresse});
+  if(b.type !== newData.type) changes.push({champ:'Type', ancienne:b.type||'—', nouvelle:newData.type});
+  if((b.statut||'actif') !== newData.statut) changes.push({champ:'Statut', ancienne:b.statut||'actif', nouvelle:newData.statut});
+  if(b.surface !== newData.surface && newData.surface) changes.push({champ:'Surface', ancienne:b.surface?b.surface+' m²':'—', nouvelle:newData.surface+' m²'});
+
+  const {error} = await supa.from('biens').update(newData).eq('id',bienId);
+  if(error){ showToast('Erreur : '+error.message); return; }
+
+  // Save historique for each change
+  if(changes.length) {
+    const histRows = changes.map(c=>({
+      user_id: currentUser.id, bien_id: bienId,
+      champ: c.champ, ancienne_valeur: c.ancienne, nouvelle_valeur: c.nouvelle
+    }));
+    const {data:hData} = await supa.from('bien_historique').insert(histRows).select();
+    if(hData) state.historique = [...hData, ...state.historique];
+  }
+
+  // Update local state
+  const idx = state.biens.findIndex(b=>b.id===bienId);
+  state.biens[idx] = dbToBien({...state.biens[idx], ...newData, id:bienId,
+    vendeur_tel:newData.vendeur_tel, vendeur_email:newData.vendeur_email,
+    created_at:state.biens[idx].createdAt});
+  closeModal('modal-modifier-bien');
+  showToast('✓ Bien modifié');
+  showFiche(bienId);
 }
 
 // ── SAVE BIEN ──
@@ -992,25 +1134,39 @@ async function sauvegarderCR(){
 }
 
 // ── RENDER ──
+function bienCard(b, showVendu=false) {
+  const v = state.visites.filter(vi=>vi.bienId===b.id).length;
+  const isVendu = b.statut==='vendu';
+  const isSuspendu = b.statut==='suspendu';
+  return `<div class="bien-card" onclick="showFiche('${b.id}')" style="${isVendu?'opacity:0.75':''}">
+    ${isVendu?'<div class="vendu-badge">🏆 Vendu</div>':''}
+    ${isSuspendu?'<div class="vendu-badge" style="background:linear-gradient(135deg,#666,#999)">⏸ Suspendu</div>':''}
+    <div class="bien-type-badge">${b.type}</div>
+    <div class="bien-adresse">${b.adresse}</div>
+    <div class="bien-details">${b.surface?b.surface+'m²':''} ${b.pieces?'· '+b.pieces+' pièces':''} ${b.vendeur?'· '+b.vendeur:''}</div>
+    <div class="bien-footer"><div class="bien-visits"><div class="visit-dot"></div>${v} visite${v>1?'s':''}</div><div class="bien-prix">${b.prix||'—'}</div></div>
+  </div>`;
+}
+
 function renderBiens(){
   const grid = document.getElementById('biens-grid');
-  if(!state.biens.length){ grid.innerHTML=emptyState('🏠','Aucun bien','Ajoutez votre premier bien.'); return; }
-  grid.innerHTML = state.biens.map(b=>{
-    const v = state.visites.filter(vi=>vi.bienId===b.id).length;
-    return `<div class="bien-card" onclick="showFiche('${b.id}')">
-      <div class="bien-type-badge">${b.type}</div>
-      <div class="bien-adresse">${b.adresse}</div>
-      <div class="bien-details">${b.surface?b.surface+'m²':''} ${b.pieces?'· '+b.pieces+' pièces':''} ${b.vendeur?'· '+b.vendeur:''}</div>
-      <div class="bien-footer"><div class="bien-visits"><div class="visit-dot"></div>${v} visite${v>1?'s':''}</div><div class="bien-prix">${b.prix||'—'}</div></div>
-    </div>`;
-  }).join('');
+  const biens = state.biens.filter(b=>b.statut!=='vendu');
+  if(!biens.length){ grid.innerHTML=emptyState('🏠','Aucun bien actif','Ajoutez votre premier bien.'); return; }
+  grid.innerHTML = biens.map(b=>bienCard(b)).join('');
+}
+
+function renderVendus(){
+  const grid = document.getElementById('vendus-grid');
+  const biens = state.biens.filter(b=>b.statut==='vendu');
+  if(!biens.length){ grid.innerHTML=emptyState('🏆','Aucun bien vendu','Marquez un bien comme vendu pour le retrouver ici.'); return; }
+  grid.innerHTML = biens.map(b=>bienCard(b,true)).join('');
 }
 
 function showFiche(bienId){
   currentBienId = bienId;
   const bien = state.biens.find(b=>b.id===bienId); if(!bien) return;
   const visites = state.visites.filter(v=>v.bienId===bienId);
-  document.getElementById('fiche-back').onclick = ()=>showView('biens',document.querySelectorAll('.nav-item')[1]);
+  const fromVendu = bien.statut==='vendu'; document.getElementById('fiche-back').onclick = ()=>showView(fromVendu?'vendus':'biens',document.querySelectorAll('.nav-item')[fromVendu?4:1]);
   document.getElementById('fiche-content').innerHTML = `
     <div style="background:white;border:1px solid var(--gris-light);border-radius:16px;padding:32px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px">
       <div>
@@ -1031,9 +1187,27 @@ function showFiche(bienId){
         <div><div class="visite-visiteur">${v.visiteur}</div><div class="visite-meta"><span>${formatDate(v.date)}</span>${v.budget?'<span>'+v.budget+'</span>':''}${v.delai?'<span>'+DELAI_LABELS[v.delai]+'</span>':''}</div></div>
         <div style="display:flex;gap:8px;align-items:center"><span class="interest-badge ${interestClass(v.interest)}">${interestLabel(v.interest)}</span><button class="btn btn-ghost" style="padding:7px 12px;font-size:12px">Voir CR →</button></div>
       </div>`).join('')}</div>`;
+  // Add historique section
+  const hist = state.historique.filter(h=>h.bien_id===bienId);
+  if(hist.length) {
+    const histHtml = `<div style="background:white;border:1px solid var(--gris-light);border-radius:16px;padding:28px;margin-top:24px">
+      <div class="section-title" style="margin-bottom:16px">📋 Historique des modifications</div>
+      ${hist.map(h=>`<div class="historique-item">
+        <div class="historique-dot"></div>
+        <div>
+          <div class="historique-champ">${h.champ}</div>
+          <div class="historique-valeurs"><span class="old">${h.ancienne_valeur}</span><span>→</span> <span class="new">${h.nouvelle_valeur}</span></div>
+          <div class="historique-date">${formatDate(h.created_at)}</div>
+        </div>
+      </div>`).join('')}
+    </div>`;
+    document.getElementById('fiche-content').innerHTML += histHtml;
+  }
+
   showView('fiche',null);
   document.getElementById('topbar-title').textContent = bien.adresse;
   const actions = document.getElementById('topbar-actions'); actions.innerHTML='';
+  addBtn(actions,'✏ Modifier',()=>openModalModifier(bienId),'btn-ghost');
   addBtn(actions,'+ Nouvelle visite',()=>openModalCR(bienId),'btn-primary');
 }
 
@@ -1191,16 +1365,16 @@ async function supprimerVisite(visitId,bienId){ if(!confirm('Supprimer ce compte
 function renderDashboard(){
   const now = new Date();
   const mois = state.visites.filter(v=>{ const d=new Date(v.savedAt||v.date); return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear(); }).length;
-  document.getElementById('stat-biens').textContent = state.biens.length;
+  document.getElementById('stat-biens').textContent = state.biens.filter(b=>b.statut!=='vendu').length;
   document.getElementById('stat-visites').textContent = state.visites.length;
   document.getElementById('stat-contacts').textContent = getAllContacts().length;
   document.getElementById('stat-mois').textContent = mois;
   const rv = state.visites.slice(0,3);
   document.getElementById('dashboard-visites').innerHTML = !rv.length ? emptyState('📋','Aucune visite','Générez votre premier CR.') :
     '<div class="visite-list">'+rv.map(v=>{ const bien=state.biens.find(b=>b.id===v.bienId); return `<div class="visite-card" onclick="showCR('${v.id}','${v.bienId||''}')"><div><div class="visite-visiteur">${v.visiteur}</div><div class="visite-meta"><span>${formatDate(v.date)}</span>${bien?'<span>'+bien.adresse+'</span>':''}</div></div><span class="interest-badge ${interestClass(v.interest)}">${interestLabel(v.interest)}</span></div>`; }).join('')+'</div>';
-  const rb = state.biens.slice(0,3);
+  const rb = state.biens.filter(b=>b.statut!=='vendu').slice(0,3);
   document.getElementById('dashboard-biens').innerHTML = !rb.length ? emptyState('🏠','Aucun bien','Ajoutez votre premier bien.') :
-    rb.map(b=>{ const vc=state.visites.filter(v=>v.bienId===b.id).length; return `<div class="bien-card" onclick="showFiche('${b.id}')"><div class="bien-type-badge">${b.type}</div><div class="bien-adresse">${b.adresse}</div><div class="bien-details">${b.surface?b.surface+'m²':''} ${b.pieces?'· '+b.pieces+' pièces':''}</div><div class="bien-footer"><div class="bien-visits"><div class="visit-dot"></div>${vc} visite${vc>1?'s':''}</div><div class="bien-prix">${b.prix||'—'}</div></div></div>`; }).join('');
+    rb.map(b=>bienCard(b)).join('');
 }
 
 function formatDate(d){ if(!d) return '—'; return new Date(d).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}); }
