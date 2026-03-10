@@ -527,7 +527,7 @@ textarea.form-input { resize:vertical; min-height:90px; }
     <div class="modal-header"><div class="modal-title">Nouveau contact</div><button class="modal-close" onclick="closeModal('modal-contact')">✕</button></div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Nom</label><input class="form-input" id="mc-nom" placeholder="M. et Mme Dupont"></div>
-      <div class="form-group"><label class="form-label">Rôle</label><select class="form-input" id="mc-role"><option value="acheteur">Acheteur</option><option value="vendeur">Vendeur</option></select></div>
+      <div class="form-group"><label class="form-label">Rôle</label><select class="form-input" id="mc-role" onchange="updateDelaiLabel(this.value)"><option value="acheteur">Acheteur</option><option value="vendeur">Vendeur</option></select></div>
     </div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Téléphone</label><input class="form-input" id="mc-tel" placeholder="06 12 34 56 78"></div>
@@ -541,6 +541,7 @@ textarea.form-input { resize:vertical; min-height:90px; }
       <div class="form-group"><label class="form-label">Type recherché</label><select class="form-input" id="mc-type"><option value="">— Non précisé —</option><option>Appartement</option><option>Maison</option><option>Studio</option><option>Loft</option><option>Villa</option></select></div>
       <div class="form-group"><label class="form-label">Secteur</label><input class="form-input" id="mc-secteur" placeholder="Paris 11e..."></div>
     </div>
+    <div class="form-group"><label class="form-label" id="mc-delai-label">Délai d'achat</label><select class="form-input" id="mc-delai"><option value="">— Non précisé —</option><option value="urgent">🔥 Urgent (< 1 mois)</option><option value="court">⚡ Court terme (1-3 mois)</option><option value="moyen">📅 Moyen terme (3-6 mois)</option><option value="long">🕐 Long terme (6 mois+)</option><option value="flou">🤷 Pas encore décidé</option></select></div>
     <div class="form-group"><label class="form-label">Notes</label><textarea class="form-input" id="mc-notes" placeholder="Notes libres..."></textarea></div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-contact')">Annuler</button>
@@ -628,6 +629,11 @@ async function signUp() {
 async function signOut() { await supa.auth.signOut(); showLanding(); }
 
 // ── INIT ──
+function updateDelaiLabel(role){
+  const label=document.getElementById('mc-delai-label');
+  if(label) label.textContent=role==='vendeur'?"Délai de vente":"Délai d'achat";
+}
+
 async function init() {
   const {data:{session}}=await supa.auth.getSession();
   if(session){currentUser=session.user;await loadAll();showApp();}
@@ -653,7 +659,7 @@ async function loadAll() {
 
 function dbToBien(r){return{id:r.id,type:r.type,adresse:r.adresse,prix:r.prix,surface:r.surface,pieces:r.pieces,vendeur:r.vendeur,vendeurTel:r.vendeur_tel,vendeurEmail:r.vendeur_email,notes:r.notes,createdAt:r.created_at};}
 function dbToVisite(r){return{id:r.id,bienId:r.bien_id,visiteur:r.visiteur,tel:r.tel,email:r.email,age:r.age,budget:r.budget,typeRecherche:r.type_recherche,secteur:r.secteur,date:r.date,interest:r.interest,impressions:r.impressions,cr:{email:r.cr_email,pdf:r.cr_pdf,court:r.cr_court},savedAt:r.saved_at};}
-function dbToContact(r){return{id:r.id,auto:false,role:r.role,nom:r.nom,tel:r.tel,email:r.email,age:r.age,budget:r.budget,typeRecherche:r.type_recherche,secteur:r.secteur,notes:r.notes,createdAt:r.created_at};}
+function dbToContact(r){return{id:r.id,auto:false,role:r.role,nom:r.nom,tel:r.tel,email:r.email,age:r.age,budget:r.budget,typeRecherche:r.type_recherche,secteur:r.secteur,delai:r.delai||'',notes:r.notes,createdAt:r.created_at};}
 
 // ── CONTACTS ──
 function getAllContacts(){
@@ -691,12 +697,18 @@ function showView(name,btn){
   if(name==='dashboard')renderDashboard();
   if(name==='biens'){renderBiens();addBtn(actions,'+ Nouveau bien',openModalBien,'btn-primary');}
   if(name==='visites')renderVisites();
-  if(name==='contacts'){renderContacts();addBtn(actions,'+ Nouveau contact',()=>openModal('modal-contact'),'btn-primary');}
+  if(name==='contacts'){renderContacts();addBtn(actions,'+ Nouveau contact',openModalContact,'btn-primary');}
 }
 function addBtn(c,l,fn,cls){const b=document.createElement('button');b.className='btn '+cls;b.textContent=l;b.onclick=fn;c.appendChild(b);}
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function openModalBien(){openModal('modal-bien');}
+function openModalContact(){
+  document.getElementById('mc-delai').value='';
+  document.getElementById('mc-role').value='acheteur';
+  updateDelaiLabel('acheteur');
+  openModal('modal-contact');
+}
 function openModalCR(bienId){
   document.getElementById('cr-form-section').style.display='block';
   document.getElementById('cr-output-section').style.display='none';
@@ -733,7 +745,7 @@ async function saveBien(){
 }
 
 async function saveContact(){
-  const contact={user_id:currentUser.id,role:document.getElementById('mc-role').value,nom:document.getElementById('mc-nom').value||'Contact sans nom',tel:document.getElementById('mc-tel').value,email:document.getElementById('mc-email').value,age:document.getElementById('mc-age').value,budget:document.getElementById('mc-budget').value,type_recherche:document.getElementById('mc-type').value,secteur:document.getElementById('mc-secteur').value,notes:document.getElementById('mc-notes').value};
+  const contact={user_id:currentUser.id,role:document.getElementById('mc-role').value,nom:document.getElementById('mc-nom').value||'Contact sans nom',tel:document.getElementById('mc-tel').value,email:document.getElementById('mc-email').value,age:document.getElementById('mc-age').value,budget:document.getElementById('mc-budget').value,type_recherche:document.getElementById('mc-type').value,secteur:document.getElementById('mc-secteur').value,delai:document.getElementById('mc-delai').value,notes:document.getElementById('mc-notes').value};
   const{data,error}=await supa.from('contacts').insert(contact).select().single();
   if(error){showToast('Erreur : '+error.message);return;}
   state.contacts.unshift(dbToContact(data));closeModal('modal-contact');showToast('✓ Contact ajouté');renderContacts();
@@ -763,7 +775,7 @@ function renderContacts(){
   grid.innerHTML=contacts.map(c=>{
     const initials=c.nom.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2);
     const visites=getContactVisites(c);const biens=getContactBiens(c);const matching=getMatchingBiens(c);
-    return`<div class="contact-card" onclick="showContactDetail('${c.id}')"><div class="contact-header"><div class="contact-avatar ${c.role==='acheteur'?'avatar-acheteur':'avatar-vendeur'}">${initials}</div><div><div class="contact-name">${c.nom}</div><div class="contact-role ${c.role==='acheteur'?'role-acheteur':'role-vendeur'}">${c.role==='acheteur'?'Acheteur':'Vendeur'}</div></div></div><div class="contact-infos">${c.tel?`<div class="contact-info-row"><span class="ci-icon">📞</span>${c.tel}</div>`:''}${c.email?`<div class="contact-info-row"><span class="ci-icon">✉</span>${c.email}</div>`:''}${c.budget?`<div class="contact-info-row"><span class="ci-icon">💰</span>Budget : ${c.budget}</div>`:''}${c.secteur?`<div class="contact-info-row"><span class="ci-icon">📍</span>${c.secteur}</div>`:''}</div><div class="contact-tags">${c.role==='acheteur'?`<span class="tag tag-or">${visites.length} visite${visites.length>1?'s':''}</span>`:''}${c.role==='vendeur'?`<span class="tag tag-green">${biens.length} bien${biens.length>1?'s':''}</span>`:''}${c.typeRecherche?`<span class="tag tag-blue">${c.typeRecherche}</span>`:''}${matching.length?`<span class="tag" style="background:#fff3e0;color:#e65100">✦ ${matching.length} match${matching.length>1?'s':''}</span>`:''}</div></div>`;
+    return`<div class="contact-card" onclick="showContactDetail('${c.id}')"><div class="contact-header"><div class="contact-avatar ${c.role==='acheteur'?'avatar-acheteur':'avatar-vendeur'}">${initials}</div><div><div class="contact-name">${c.nom}</div><div class="contact-role ${c.role==='acheteur'?'role-acheteur':'role-vendeur'}">${c.role==='acheteur'?'Acheteur':'Vendeur'}</div></div></div><div class="contact-infos">${c.tel?`<div class="contact-info-row"><span class="ci-icon">📞</span>${c.tel}</div>`:''}${c.email?`<div class="contact-info-row"><span class="ci-icon">✉</span>${c.email}</div>`:''}${c.budget?`<div class="contact-info-row"><span class="ci-icon">💰</span>Budget : ${c.budget}</div>`:''}${c.secteur?`<div class="contact-info-row"><span class="ci-icon">📍</span>${c.secteur}</div>`:''}</div><div class="contact-tags">${c.role==='acheteur'?`<span class="tag tag-or">${visites.length} visite${visites.length>1?'s':''}</span>`:''}${c.role==='vendeur'?`<span class="tag tag-green">${biens.length} bien${biens.length>1?'s':''}</span>`:''}${c.typeRecherche?`<span class="tag tag-blue">${c.typeRecherche}</span>`:''}${c.delai?`<span class="tag" style="background:#fce4ec;color:#c62828">${{'urgent':'🔥 Urgent','court':'⚡ Court terme','moyen':'📅 Moyen terme','long':'🕐 Long terme','flou':'🤷 Flou'}[c.delai]||''}</span>`:''}${matching.length?`<span class="tag" style="background:#fff3e0;color:#e65100">✦ ${matching.length} match${matching.length>1?'s':''}</span>`:''}</div></div>`;
   }).join('');
 }
 
