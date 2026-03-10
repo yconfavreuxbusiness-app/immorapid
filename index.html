@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ImmoRapid</title>
-<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<title>ImmoRapid — Comptes-rendus de visite en 30 secondes</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
@@ -16,197 +16,347 @@
 html,body{height:100%;}
 body{font-family:'DM Sans',sans-serif;background:var(--blanc);color:var(--noir);}
 
-/* AUTH */
-#auth-screen{position:fixed;inset:0;z-index:1000;background:var(--noir);display:flex;align-items:center;justify-content:center;}
-.auth-card{background:white;border-radius:24px;padding:48px;width:100%;max-width:420px;box-shadow:0 40px 80px rgba(0,0,0,0.4);}
-.auth-logo{font-family:'Clash Display',sans-serif;font-size:28px;font-weight:700;margin-bottom:8px;}
-.auth-logo span{color:var(--or);}
-.auth-sub{font-size:14px;color:var(--gris);margin-bottom:32px;}
-.auth-tabs{display:flex;gap:4px;background:var(--blanc);padding:4px;border-radius:8px;margin-bottom:24px;}
-.auth-tab{flex:1;padding:9px;text-align:center;font-size:13px;font-weight:500;color:var(--gris);border-radius:6px;cursor:pointer;border:none;background:transparent;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
-.auth-tab.active{background:white;color:var(--noir);box-shadow:0 1px 4px rgba(0,0,0,0.08);}
-.auth-input{width:100%;padding:12px 16px;background:var(--blanc);border:1px solid var(--gris-light);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--noir);outline:none;margin-bottom:12px;transition:border-color 0.15s;}
-.auth-input:focus{border-color:var(--or);}
-.auth-btn{width:100%;padding:14px;background:var(--noir);color:white;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:background 0.15s;margin-top:4px;}
-.auth-btn:hover{background:var(--or);}
-.auth-error{font-size:13px;color:var(--danger);margin-top:10px;min-height:20px;}
+/* ── LANDING ── */
+#landing { display:none; }
 
-/* APP */
-#app{display:none;height:100vh;}
-.layout{display:flex;height:100vh;}
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:20px 60px;
+  background:rgba(248,245,240,0.92);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(201,169,110,0.15);
+}
+.nav-logo { font-family:'Clash Display',sans-serif; font-size:22px; font-weight:700; letter-spacing:-0.5px; color:var(--noir); text-decoration:none; }
+.nav-logo span { color:var(--or); }
+.nav-links { display:flex; gap:36px; align-items:center; }
+.nav-links a { font-size:14px; color:var(--gris); text-decoration:none; transition:color 0.2s; }
+.nav-links a:hover { color:var(--noir); }
+.btn-nav { background:var(--noir) !important; color:var(--blanc) !important; padding:10px 22px !important; border-radius:6px !important; font-size:13px !important; font-weight:500 !important; transition:all 0.2s !important; cursor:pointer; border:none !important; font-family:'DM Sans',sans-serif !important; }
+.btn-nav:hover { background:var(--or) !important; }
 
-/* SIDEBAR */
-.sidebar{width:var(--sidebar-w);background:var(--noir);height:100vh;display:flex;flex-direction:column;flex-shrink:0;}
-.sidebar-logo{padding:28px 24px 24px;border-bottom:1px solid rgba(255,255,255,0.06);}
-.logo-text{font-family:'Clash Display',sans-serif;font-size:22px;font-weight:700;color:white;letter-spacing:-0.5px;}
-.logo-text span{color:var(--or);}
-.logo-sub{font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px;}
-.sidebar-nav{flex:1;padding:20px 12px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;}
-.nav-section{font-size:10px;color:rgba(255,255,255,0.2);letter-spacing:1.5px;text-transform:uppercase;padding:16px 14px 6px;}
-.nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:8px;font-size:13.5px;font-weight:400;color:rgba(255,255,255,0.45);cursor:pointer;transition:all 0.15s;border:none;background:none;width:100%;text-align:left;font-family:'DM Sans',sans-serif;}
-.nav-item:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.8);}
-.nav-item.active{background:rgba(201,169,110,0.15);color:var(--or);}
-.nav-item .icon{font-size:16px;width:20px;text-align:center;}
-.sidebar-bottom{padding:16px 12px;border-top:1px solid rgba(255,255,255,0.06);}
-.user-pill{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:rgba(255,255,255,0.05);}
-.user-avatar{width:30px;height:30px;border-radius:50%;background:var(--or);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:white;flex-shrink:0;}
-.user-info{flex:1;}
-.user-name{font-size:12px;color:rgba(255,255,255,0.6);}
-.signout-btn{background:none;border:none;color:rgba(255,255,255,0.25);cursor:pointer;font-size:14px;transition:color 0.15s;padding:2px;}
-.signout-btn:hover{color:var(--danger);}
+.hero { min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:120px 40px 80px; position:relative; overflow:hidden; }
+.hero::before { content:''; position:absolute; top:-200px; left:50%; transform:translateX(-50%); width:800px; height:800px; background:radial-gradient(circle,rgba(201,169,110,0.12) 0%,transparent 70%); pointer-events:none; }
+.hero-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(201,169,110,0.12); border:1px solid rgba(201,169,110,0.3); padding:6px 16px; border-radius:100px; font-size:12px; font-weight:500; color:#9a7a4a; letter-spacing:0.8px; text-transform:uppercase; margin-bottom:32px; animation:fadeUp 0.6s ease both; }
+.hero-badge::before { content:''; width:6px; height:6px; background:var(--or); border-radius:50%; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(1.4);} }
+h1 { font-family:'Clash Display',sans-serif; font-size:clamp(48px,7vw,88px); font-weight:600; line-height:1.0; letter-spacing:-2px; max-width:900px; animation:fadeUp 0.6s ease 0.1s both; }
+h1 em { font-family:'Instrument Serif',serif; font-style:italic; font-weight:400; color:var(--or); }
+.hero-sub { font-size:18px; font-weight:300; color:var(--gris); max-width:520px; line-height:1.7; margin-top:24px; animation:fadeUp 0.6s ease 0.2s both; }
+.hero-cta { display:flex; gap:16px; align-items:center; margin-top:44px; flex-wrap:wrap; justify-content:center; animation:fadeUp 0.6s ease 0.3s both; }
+.btn-primary-land { background:var(--noir); color:var(--blanc); padding:16px 36px; border-radius:8px; font-size:15px; font-weight:500; text-decoration:none; border:none; cursor:pointer; transition:all 0.2s; display:inline-block; box-shadow:0 4px 20px rgba(0,0,0,0.15); font-family:'DM Sans',sans-serif; }
+.btn-primary-land:hover { background:var(--or); transform:translateY(-2px); }
+.btn-secondary-land { color:var(--gris); font-size:14px; text-decoration:none; display:flex; align-items:center; gap:8px; transition:color 0.2s; background:none; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; }
+.btn-secondary-land:hover { color:var(--noir); }
+.btn-secondary-land::before { content:'▶'; font-size:10px; }
 
-/* MAIN */
-.main{flex:1;height:100vh;overflow-y:auto;display:flex;flex-direction:column;}
-.topbar{position:sticky;top:0;z-index:40;background:rgba(247,244,239,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--gris-light);padding:0 36px;height:60px;display:flex;align-items:center;justify-content:space-between;}
-.topbar-title{font-family:'Clash Display',sans-serif;font-size:18px;font-weight:600;letter-spacing:-0.3px;}
-.content{padding:32px 36px;flex:1;}
+/* LANCEMENT BANNER */
+.launch-banner { background:linear-gradient(90deg,rgba(201,169,110,0.15),rgba(201,169,110,0.08)); border:1px solid rgba(201,169,110,0.3); border-radius:100px; padding:8px 20px; font-size:13px; color:#9a7a4a; font-weight:500; margin-top:32px; animation:fadeUp 0.6s ease 0.4s both; display:inline-flex; align-items:center; gap:8px; }
+.launch-banner::before { content:'🎉'; }
 
-/* VIEWS */
-.view{display:none;animation:fadeIn 0.2s ease;}
-.view.active{display:block;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.land-section { padding:100px 60px; }
+.land-section-dark { padding:100px 60px; background:var(--noir); color:var(--blanc); }
+.section-label { font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--or); margin-bottom:16px; }
+.section-title { font-family:'Clash Display',sans-serif; font-size:clamp(32px,4vw,52px); font-weight:600; letter-spacing:-1px; line-height:1.1; max-width:600px; }
 
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
-.btn-primary{background:var(--noir);color:white;}
-.btn-primary:hover{background:var(--or);}
-.btn-ghost{background:white;color:var(--noir);border:1px solid var(--gris-light);}
-.btn-ghost:hover{border-color:var(--or);color:var(--or);}
-.btn-danger{background:#fff0f0;color:var(--danger);border:1px solid #ffd5d5;}
-.btn-danger:hover{background:#ffe0e0;}
+.problem-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:60px; max-width:900px; }
+.problem-card { background:white; border:1px solid var(--gris-light); border-radius:16px; padding:32px; position:relative; }
+.problem-card::after { content:'✗'; position:absolute; top:20px; right:24px; font-size:20px; color:#ffb3b3; }
+.problem-card p { font-size:15px; line-height:1.7; color:#444; }
+.problem-card strong { color:var(--noir); font-weight:500; }
 
-/* STATS */
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;}
-.stat-card{background:white;border:1px solid var(--gris-light);border-radius:14px;padding:24px 28px;position:relative;overflow:hidden;}
-.stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--or),var(--or-light));opacity:0.5;}
-.stat-label{font-size:11px;color:var(--gris);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:8px;}
-.stat-value{font-family:'Clash Display',sans-serif;font-size:36px;font-weight:700;letter-spacing:-1px;line-height:1;}
-.stat-sub{font-size:12px;color:var(--gris);margin-top:6px;}
+.steps-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; margin-top:60px; }
+.step { background:rgba(255,255,255,0.04); padding:36px 28px; border:1px solid rgba(255,255,255,0.07); }
+.step:first-child { border-radius:16px 0 0 16px; }
+.step:last-child { border-radius:0 16px 16px 0; }
+.step-num { font-family:'Clash Display',sans-serif; font-size:48px; font-weight:700; color:rgba(201,169,110,0.2); line-height:1; margin-bottom:20px; }
+.step h3 { font-family:'Clash Display',sans-serif; font-size:18px; font-weight:600; margin-bottom:10px; letter-spacing:-0.3px; color:white; }
+.step p { font-size:14px; color:rgba(248,245,240,0.55); line-height:1.7; }
 
-/* SECTION */
-.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
-.section-title{font-family:'Clash Display',sans-serif;font-size:17px;font-weight:600;letter-spacing:-0.3px;}
+.pricing-grid { display:grid; grid-template-columns:repeat(1,1fr); gap:24px; margin-top:60px; max-width:380px; }
+.pricing-card { background:white; border:1px solid var(--gris-light); border-radius:20px; padding:40px 36px; position:relative; }
+.pricing-badge { position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:var(--or); color:white; font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; padding:4px 14px; border-radius:100px; white-space:nowrap; }
+.pricing-name { font-family:'Clash Display',sans-serif; font-size:16px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:8px; }
+.pricing-price { font-family:'Clash Display',sans-serif; font-size:52px; font-weight:700; letter-spacing:-2px; line-height:1; margin:16px 0 4px; }
+.pricing-price sup { font-size:24px; vertical-align:super; letter-spacing:0; }
+.pricing-price sub { font-size:16px; font-weight:400; color:var(--gris); letter-spacing:0; }
+.pricing-launch { font-size:13px; color:var(--or); font-weight:500; margin-bottom:12px; }
+.pricing-desc { font-size:13px; color:var(--gris); margin-bottom:28px; line-height:1.5; }
+.pricing-features { list-style:none; display:flex; flex-direction:column; gap:12px; margin-bottom:36px; }
+.pricing-features li { font-size:14px; display:flex; align-items:flex-start; gap:10px; line-height:1.5; }
+.pricing-features li::before { content:'✓'; color:var(--or); font-size:13px; font-weight:700; flex-shrink:0; margin-top:1px; }
+.btn-plan { width:100%; padding:14px; border-radius:8px; font-size:14px; font-weight:500; cursor:pointer; border:1.5px solid var(--noir); background:var(--noir); color:white; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
+.btn-plan:hover { background:var(--or); border-color:var(--or); }
 
-/* BIENS */
-.bien-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
-.bien-card{background:white;border:1px solid var(--gris-light);border-radius:14px;padding:24px;cursor:pointer;transition:all 0.15s;}
-.bien-card:hover{border-color:var(--or);box-shadow:0 4px 20px rgba(201,169,110,0.12);transform:translateY(-2px);}
-.bien-type-badge{display:inline-block;padding:3px 10px;background:var(--or-light);color:#9a7a4a;border-radius:100px;font-size:11px;font-weight:500;margin-bottom:12px;}
-.bien-adresse{font-family:'Clash Display',sans-serif;font-size:16px;font-weight:600;letter-spacing:-0.3px;margin-bottom:4px;line-height:1.3;}
-.bien-details{font-size:13px;color:var(--gris);margin-bottom:16px;}
-.bien-footer{display:flex;align-items:center;justify-content:space-between;padding-top:16px;border-top:1px solid var(--gris-light);}
-.bien-visits{font-size:13px;color:var(--gris);display:flex;align-items:center;gap:6px;}
-.visit-dot{width:7px;height:7px;border-radius:50%;background:var(--or);}
-.bien-prix{font-family:'Clash Display',sans-serif;font-size:16px;font-weight:600;}
+land-footer { background:var(--noir); color:rgba(248,245,240,0.4); padding:48px 60px; display:flex; justify-content:space-between; align-items:center; }
 
-/* VISITES */
-.visite-list{display:flex;flex-direction:column;gap:12px;}
-.visite-card{background:white;border:1px solid var(--gris-light);border-radius:12px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;transition:all 0.15s;cursor:pointer;}
-.visite-card:hover{border-color:var(--or-light);}
-.visite-visiteur{font-size:15px;font-weight:500;margin-bottom:4px;}
-.visite-meta{font-size:13px;color:var(--gris);display:flex;gap:16px;}
-.interest-badge{padding:4px 12px;border-radius:100px;font-size:12px;font-weight:500;}
-.interest-high{background:#e8f5e9;color:#2e7d32;}
-.interest-med{background:#fff8e1;color:#f57f17;}
-.interest-low{background:#fce4ec;color:#c62828;}
+/* ── AUTH ── */
+#auth-screen { position:fixed; inset:0; z-index:1000; background:var(--noir); display:none; align-items:center; justify-content:center; }
+.auth-card { background:white; border-radius:24px; padding:48px; width:100%; max-width:420px; box-shadow:0 40px 80px rgba(0,0,0,0.4); }
+.auth-logo { font-family:'Clash Display',sans-serif; font-size:28px; font-weight:700; margin-bottom:8px; }
+.auth-logo span { color:var(--or); }
+.auth-sub { font-size:14px; color:var(--gris); margin-bottom:32px; }
+.auth-tabs { display:flex; gap:4px; background:var(--blanc); padding:4px; border-radius:8px; margin-bottom:24px; }
+.auth-tab { flex:1; padding:9px; text-align:center; font-size:13px; font-weight:500; color:var(--gris); border-radius:6px; cursor:pointer; border:none; background:transparent; font-family:'DM Sans',sans-serif; transition:all 0.15s; }
+.auth-tab.active { background:white; color:var(--noir); box-shadow:0 1px 4px rgba(0,0,0,0.08); }
+.auth-input { width:100%; padding:12px 16px; background:var(--blanc); border:1px solid var(--gris-light); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:14px; color:var(--noir); outline:none; margin-bottom:12px; transition:border-color 0.15s; }
+.auth-input:focus { border-color:var(--or); }
+.auth-btn { width:100%; padding:14px; background:var(--noir); color:white; border:none; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:500; cursor:pointer; transition:background 0.15s; margin-top:4px; }
+.auth-btn:hover { background:var(--or); }
+.auth-error { font-size:13px; margin-top:10px; min-height:20px; }
+.auth-back { background:none; border:none; color:var(--gris); font-size:13px; cursor:pointer; margin-top:16px; font-family:'DM Sans',sans-serif; display:block; text-align:center; transition:color 0.15s; }
+.auth-back:hover { color:var(--noir); }
 
-/* CONTACTS */
-.contacts-filter{display:flex;gap:8px;margin-bottom:24px;}
-.filter-btn{padding:7px 16px;border-radius:100px;font-size:13px;font-weight:500;cursor:pointer;border:1.5px solid var(--gris-light);background:white;color:var(--gris);font-family:'DM Sans',sans-serif;transition:all 0.15s;}
-.filter-btn.active{border-color:var(--or);color:var(--or);background:var(--or-light);}
-.contacts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
-.contact-card{background:white;border:1px solid var(--gris-light);border-radius:14px;padding:24px;cursor:pointer;transition:all 0.15s;}
-.contact-card:hover{border-color:var(--or);box-shadow:0 4px 20px rgba(201,169,110,0.1);transform:translateY(-2px);}
-.contact-header{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
-.contact-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Clash Display',sans-serif;font-size:16px;font-weight:700;color:white;flex-shrink:0;}
-.avatar-acheteur{background:linear-gradient(135deg,#c9a96e,#e8c98a);}
-.avatar-vendeur{background:linear-gradient(135deg,#2d6a4f,#52b788);}
-.contact-name{font-family:'Clash Display',sans-serif;font-size:16px;font-weight:600;letter-spacing:-0.3px;}
-.contact-role{font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;margin-top:2px;}
-.role-acheteur{color:var(--or);}
-.role-vendeur{color:#2d6a4f;}
-.contact-infos{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
-.contact-info-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--gris);}
-.ci-icon{font-size:13px;width:16px;text-align:center;}
-.contact-tags{display:flex;gap:6px;flex-wrap:wrap;padding-top:14px;border-top:1px solid var(--gris-light);}
-.tag{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:500;}
-.tag-or{background:var(--or-light);color:#9a7a4a;}
-.tag-green{background:#e8f5e9;color:#2e7d32;}
-.tag-blue{background:#e3f2fd;color:#1565c0;}
+/* ── APP ── */
+#app { display:none; height:100vh; }
+.layout { display:flex; height:100vh; }
 
-/* MATCHING */
-.matching-section{background:white;border:1px solid var(--gris-light);border-radius:16px;padding:28px;margin-bottom:24px;}
-.matching-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
-.matching-icon{width:36px;height:36px;background:var(--or-light);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;}
-.matching-title{font-family:'Clash Display',sans-serif;font-size:17px;font-weight:600;letter-spacing:-0.3px;}
-.matching-sub{font-size:13px;color:var(--gris);margin-top:2px;}
-.match-list{display:flex;flex-direction:column;gap:10px;}
-.match-item{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--blanc);border:1px solid var(--gris-light);border-radius:10px;transition:all 0.15s;cursor:pointer;}
-.match-item:hover{border-color:var(--or);}
-.match-item-adresse{font-size:14px;font-weight:500;margin-bottom:3px;}
-.match-item-meta{font-size:12px;color:var(--gris);display:flex;gap:12px;}
-.match-score{display:flex;align-items:center;gap:6px;}
-.match-bar{height:6px;border-radius:3px;background:var(--gris-light);width:60px;overflow:hidden;}
-.match-fill{height:100%;border-radius:3px;background:var(--or);}
-.match-pct{font-size:12px;font-weight:600;color:var(--or);}
+/* LAUNCH BANNER IN APP */
+.app-banner { background:linear-gradient(90deg,rgba(201,169,110,0.12),rgba(201,169,110,0.06)); border-bottom:1px solid rgba(201,169,110,0.2); padding:9px 36px; font-size:13px; color:#9a7a4a; font-weight:500; display:flex; align-items:center; gap:8px; }
+.app-banner span { margin-left:auto; font-size:12px; color:var(--gris); }
 
-/* INFO GRID */
-.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
-.info-card{background:white;border:1px solid var(--gris-light);border-radius:12px;padding:20px 24px;}
-.info-card-label{font-size:11px;color:var(--gris);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px;}
-.info-card-value{font-size:15px;font-weight:500;}
+.sidebar { width:var(--sidebar-w); background:var(--noir); height:100vh; display:flex; flex-direction:column; flex-shrink:0; }
+.sidebar-logo { padding:28px 24px 24px; border-bottom:1px solid rgba(255,255,255,0.06); }
+.logo-text { font-family:'Clash Display',sans-serif; font-size:22px; font-weight:700; color:white; letter-spacing:-0.5px; }
+.logo-text span { color:var(--or); }
+.logo-sub { font-size:11px; color:rgba(255,255,255,0.3); margin-top:2px; }
+.sidebar-nav { flex:1; padding:20px 12px; display:flex; flex-direction:column; gap:4px; overflow-y:auto; }
+.nav-section-label { font-size:10px; color:rgba(255,255,255,0.2); letter-spacing:1.5px; text-transform:uppercase; padding:16px 14px 6px; }
+.nav-item { display:flex; align-items:center; gap:12px; padding:11px 14px; border-radius:8px; font-size:13.5px; font-weight:400; color:rgba(255,255,255,0.45); cursor:pointer; transition:all 0.15s; border:none; background:none; width:100%; text-align:left; font-family:'DM Sans',sans-serif; }
+.nav-item:hover { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.8); }
+.nav-item.active { background:rgba(201,169,110,0.15); color:var(--or); }
+.nav-item .icon { font-size:16px; width:20px; text-align:center; }
+.sidebar-bottom { padding:16px 12px; border-top:1px solid rgba(255,255,255,0.06); }
+.user-pill { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; background:rgba(255,255,255,0.05); }
+.user-avatar { width:30px; height:30px; border-radius:50%; background:var(--or); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; color:white; flex-shrink:0; }
+.user-info { flex:1; }
+.user-name { font-size:12px; color:rgba(255,255,255,0.6); }
+.signout-btn { background:none; border:none; color:rgba(255,255,255,0.25); cursor:pointer; font-size:14px; transition:color 0.15s; padding:2px; }
+.signout-btn:hover { color:var(--danger); }
 
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity 0.2s;}
-.modal-overlay.open{opacity:1;pointer-events:all;}
-.modal{background:white;border-radius:20px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;padding:36px;transform:translateY(16px);transition:transform 0.2s;box-shadow:0 40px 80px rgba(0,0,0,0.2);}
-.modal-overlay.open .modal{transform:translateY(0);}
-.modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;}
-.modal-title{font-family:'Clash Display',sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.5px;}
-.modal-close{background:var(--gris-light);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background 0.15s;flex-shrink:0;}
-.modal-close:hover{background:#ddd;}
-.form-group{margin-bottom:18px;}
-.form-label{display:block;font-size:12px;font-weight:500;color:var(--gris);letter-spacing:0.3px;margin-bottom:6px;}
-.form-input{width:100%;padding:11px 14px;background:var(--blanc);border:1px solid var(--gris-light);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--noir);outline:none;transition:border-color 0.15s;}
-.form-input:focus{border-color:var(--or);}
-textarea.form-input{resize:vertical;min-height:90px;}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:1px solid var(--gris-light);}
-.divider{height:1px;background:var(--gris-light);margin:20px 0;}
+.main { flex:1; height:100vh; overflow-y:auto; display:flex; flex-direction:column; }
+.topbar { position:sticky; top:0; z-index:40; background:rgba(247,244,239,0.92); backdrop-filter:blur(12px); border-bottom:1px solid var(--gris-light); padding:0 36px; height:60px; display:flex; align-items:center; justify-content:space-between; }
+.topbar-title { font-family:'Clash Display',sans-serif; font-size:18px; font-weight:600; letter-spacing:-0.3px; }
+.content { padding:32px 36px; flex:1; }
 
-/* CR */
-.cr-output{background:var(--blanc);border:1px solid var(--gris-light);border-radius:12px;overflow:hidden;margin-top:20px;}
-.cr-tabs{display:flex;border-bottom:1px solid var(--gris-light);background:white;}
-.cr-tab{flex:1;padding:12px 8px;text-align:center;font-size:13px;font-weight:500;color:var(--gris);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;transition:all 0.15s;border-bottom:2px solid transparent;}
-.cr-tab.active{color:var(--or);border-bottom-color:var(--or);}
-.cr-body{padding:20px 24px;font-size:14px;line-height:1.8;color:#333;white-space:pre-wrap;min-height:140px;}
-.cr-actions{display:flex;gap:8px;padding:14px 20px;border-top:1px solid var(--gris-light);background:white;flex-wrap:wrap;}
+.view { display:none; animation:fadeIn 0.2s ease; }
+.view.active { display:block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);} }
 
-/* LOADING */
-.loading-wrap{display:flex;align-items:center;justify-content:center;gap:8px;padding:32px;color:var(--gris);font-size:14px;}
-.dots{display:flex;gap:5px;}
-.dots span{width:7px;height:7px;background:var(--or);border-radius:50%;animation:bounce 1.1s infinite;}
-.dots span:nth-child(2){animation-delay:0.18s;}
-.dots span:nth-child(3){animation-delay:0.36s;}
-@keyframes bounce{0%,100%{transform:translateY(0);opacity:0.35;}50%{transform:translateY(-7px);opacity:1;}}
+.btn { display:inline-flex; align-items:center; gap:8px; padding:9px 18px; border-radius:7px; font-size:13px; font-weight:500; cursor:pointer; border:none; font-family:'DM Sans',sans-serif; transition:all 0.15s; }
+.btn-primary { background:var(--noir); color:white; }
+.btn-primary:hover { background:var(--or); }
+.btn-ghost { background:white; color:var(--noir); border:1px solid var(--gris-light); }
+.btn-ghost:hover { border-color:var(--or); color:var(--or); }
+.btn-danger { background:#fff0f0; color:var(--danger); border:1px solid #ffd5d5; }
+.btn-danger:hover { background:#ffe0e0; }
 
-/* MISC */
-.empty-state{text-align:center;padding:60px 40px;color:var(--gris);}
-.empty-icon{font-size:40px;margin-bottom:16px;opacity:0.4;}
-.empty-title{font-size:16px;font-weight:500;color:var(--noir);margin-bottom:8px;}
-.empty-sub{font-size:14px;line-height:1.6;}
-.back-btn{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--gris);cursor:pointer;margin-bottom:24px;transition:color 0.15s;background:none;border:none;font-family:'DM Sans',sans-serif;}
-.back-btn:hover{color:var(--noir);}
-.toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--noir);color:white;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:500;transform:translateY(20px);opacity:0;transition:all 0.25s;pointer-events:none;}
-.toast.show{transform:translateY(0);opacity:1;}
-::-webkit-scrollbar{width:5px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--gris-light);border-radius:10px;}
+.stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:32px; }
+.stat-card { background:white; border:1px solid var(--gris-light); border-radius:14px; padding:24px 28px; position:relative; overflow:hidden; }
+.stat-card::after { content:''; position:absolute; bottom:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--or),var(--or-light)); opacity:0.5; }
+.stat-label { font-size:11px; color:var(--gris); letter-spacing:0.5px; text-transform:uppercase; margin-bottom:8px; }
+.stat-value { font-family:'Clash Display',sans-serif; font-size:36px; font-weight:700; letter-spacing:-1px; line-height:1; }
+.stat-sub { font-size:12px; color:var(--gris); margin-top:6px; }
+
+.section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.section-title { font-family:'Clash Display',sans-serif; font-size:17px; font-weight:600; letter-spacing:-0.3px; }
+
+.bien-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
+.bien-card { background:white; border:1px solid var(--gris-light); border-radius:14px; padding:24px; cursor:pointer; transition:all 0.15s; }
+.bien-card:hover { border-color:var(--or); box-shadow:0 4px 20px rgba(201,169,110,0.12); transform:translateY(-2px); }
+.bien-type-badge { display:inline-block; padding:3px 10px; background:var(--or-light); color:#9a7a4a; border-radius:100px; font-size:11px; font-weight:500; margin-bottom:12px; }
+.bien-adresse { font-family:'Clash Display',sans-serif; font-size:16px; font-weight:600; letter-spacing:-0.3px; margin-bottom:4px; line-height:1.3; }
+.bien-details { font-size:13px; color:var(--gris); margin-bottom:16px; }
+.bien-footer { display:flex; align-items:center; justify-content:space-between; padding-top:16px; border-top:1px solid var(--gris-light); }
+.bien-visits { font-size:13px; color:var(--gris); display:flex; align-items:center; gap:6px; }
+.visit-dot { width:7px; height:7px; border-radius:50%; background:var(--or); }
+.bien-prix { font-family:'Clash Display',sans-serif; font-size:16px; font-weight:600; }
+
+.visite-list { display:flex; flex-direction:column; gap:12px; }
+.visite-card { background:white; border:1px solid var(--gris-light); border-radius:12px; padding:20px 24px; display:flex; justify-content:space-between; align-items:center; transition:all 0.15s; cursor:pointer; }
+.visite-card:hover { border-color:var(--or-light); }
+.visite-visiteur { font-size:15px; font-weight:500; margin-bottom:4px; }
+.visite-meta { font-size:13px; color:var(--gris); display:flex; gap:16px; }
+.interest-badge { padding:4px 12px; border-radius:100px; font-size:12px; font-weight:500; }
+.interest-high { background:#e8f5e9; color:#2e7d32; }
+.interest-med { background:#fff8e1; color:#f57f17; }
+.interest-low { background:#fce4ec; color:#c62828; }
+
+.contacts-filter { display:flex; gap:8px; margin-bottom:24px; }
+.filter-btn { padding:7px 16px; border-radius:100px; font-size:13px; font-weight:500; cursor:pointer; border:1.5px solid var(--gris-light); background:white; color:var(--gris); font-family:'DM Sans',sans-serif; transition:all 0.15s; }
+.filter-btn.active { border-color:var(--or); color:var(--or); background:var(--or-light); }
+.contacts-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+.contact-card { background:white; border:1px solid var(--gris-light); border-radius:14px; padding:24px; cursor:pointer; transition:all 0.15s; }
+.contact-card:hover { border-color:var(--or); box-shadow:0 4px 20px rgba(201,169,110,0.1); transform:translateY(-2px); }
+.contact-header { display:flex; align-items:center; gap:14px; margin-bottom:16px; }
+.contact-avatar { width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Clash Display',sans-serif; font-size:16px; font-weight:700; color:white; flex-shrink:0; }
+.avatar-acheteur { background:linear-gradient(135deg,#c9a96e,#e8c98a); }
+.avatar-vendeur { background:linear-gradient(135deg,#2d6a4f,#52b788); }
+.contact-name { font-family:'Clash Display',sans-serif; font-size:16px; font-weight:600; letter-spacing:-0.3px; }
+.contact-role { font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; margin-top:2px; }
+.role-acheteur { color:var(--or); }
+.role-vendeur { color:#2d6a4f; }
+.contact-infos { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
+.contact-info-row { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--gris); }
+.ci-icon { font-size:13px; width:16px; text-align:center; }
+.contact-tags { display:flex; gap:6px; flex-wrap:wrap; padding-top:14px; border-top:1px solid var(--gris-light); }
+.tag { display:inline-block; padding:3px 10px; border-radius:100px; font-size:11px; font-weight:500; }
+.tag-or { background:var(--or-light); color:#9a7a4a; }
+.tag-green { background:#e8f5e9; color:#2e7d32; }
+.tag-blue { background:#e3f2fd; color:#1565c0; }
+
+.matching-section { background:white; border:1px solid var(--gris-light); border-radius:16px; padding:28px; margin-bottom:24px; }
+.matching-header { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+.matching-icon { width:36px; height:36px; background:var(--or-light); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+.matching-title { font-family:'Clash Display',sans-serif; font-size:17px; font-weight:600; letter-spacing:-0.3px; }
+.matching-sub { font-size:13px; color:var(--gris); margin-top:2px; }
+.match-list { display:flex; flex-direction:column; gap:10px; }
+.match-item { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; background:var(--blanc); border:1px solid var(--gris-light); border-radius:10px; transition:all 0.15s; cursor:pointer; }
+.match-item:hover { border-color:var(--or); }
+.match-item-adresse { font-size:14px; font-weight:500; margin-bottom:3px; }
+.match-item-meta { font-size:12px; color:var(--gris); display:flex; gap:12px; }
+.match-score { display:flex; align-items:center; gap:6px; }
+.match-bar { height:6px; border-radius:3px; background:var(--gris-light); width:60px; overflow:hidden; }
+.match-fill { height:100%; border-radius:3px; background:var(--or); }
+.match-pct { font-size:12px; font-weight:600; color:var(--or); }
+
+.info-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; }
+.info-card { background:white; border:1px solid var(--gris-light); border-radius:12px; padding:20px 24px; }
+.info-card-label { font-size:11px; color:var(--gris); letter-spacing:0.5px; text-transform:uppercase; margin-bottom:6px; }
+.info-card-value { font-size:15px; font-weight:500; }
+
+.modal-overlay { position:fixed; inset:0; z-index:200; background:rgba(0,0,0,0.4); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:24px; opacity:0; pointer-events:none; transition:opacity 0.2s; }
+.modal-overlay.open { opacity:1; pointer-events:all; }
+.modal { background:white; border-radius:20px; width:100%; max-width:580px; max-height:90vh; overflow-y:auto; padding:36px; transform:translateY(16px); transition:transform 0.2s; box-shadow:0 40px 80px rgba(0,0,0,0.2); }
+.modal-overlay.open .modal { transform:translateY(0); }
+.modal-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:28px; }
+.modal-title { font-family:'Clash Display',sans-serif; font-size:22px; font-weight:700; letter-spacing:-0.5px; }
+.modal-close { background:var(--gris-light); border:none; border-radius:50%; width:32px; height:32px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; transition:background 0.15s; flex-shrink:0; }
+.modal-close:hover { background:#ddd; }
+.form-group { margin-bottom:18px; }
+.form-label { display:block; font-size:12px; font-weight:500; color:var(--gris); letter-spacing:0.3px; margin-bottom:6px; }
+.form-input { width:100%; padding:11px 14px; background:var(--blanc); border:1px solid var(--gris-light); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:14px; color:var(--noir); outline:none; transition:border-color 0.15s; }
+.form-input:focus { border-color:var(--or); }
+textarea.form-input { resize:vertical; min-height:90px; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.modal-footer { display:flex; gap:10px; justify-content:flex-end; margin-top:24px; padding-top:20px; border-top:1px solid var(--gris-light); }
+.divider { height:1px; background:var(--gris-light); margin:20px 0; }
+
+.cr-output { background:var(--blanc); border:1px solid var(--gris-light); border-radius:12px; overflow:hidden; margin-top:20px; }
+.cr-tabs { display:flex; border-bottom:1px solid var(--gris-light); background:white; }
+.cr-tab { flex:1; padding:12px 8px; text-align:center; font-size:13px; font-weight:500; color:var(--gris); cursor:pointer; border:none; background:none; font-family:'DM Sans',sans-serif; transition:all 0.15s; border-bottom:2px solid transparent; }
+.cr-tab.active { color:var(--or); border-bottom-color:var(--or); }
+.cr-body { padding:20px 24px; font-size:14px; line-height:1.8; color:#333; white-space:pre-wrap; min-height:140px; }
+.cr-actions { display:flex; gap:8px; padding:14px 20px; border-top:1px solid var(--gris-light); background:white; flex-wrap:wrap; }
+
+.loading-wrap { display:flex; align-items:center; justify-content:center; gap:8px; padding:32px; color:var(--gris); font-size:14px; }
+.dots { display:flex; gap:5px; }
+.dots span { width:7px; height:7px; background:var(--or); border-radius:50%; animation:bounce 1.1s infinite; }
+.dots span:nth-child(2) { animation-delay:0.18s; }
+.dots span:nth-child(3) { animation-delay:0.36s; }
+@keyframes bounce { 0%,100%{transform:translateY(0);opacity:0.35;}50%{transform:translateY(-7px);opacity:1;} }
+
+.empty-state { text-align:center; padding:60px 40px; color:var(--gris); }
+.empty-icon { font-size:40px; margin-bottom:16px; opacity:0.4; }
+.empty-title { font-size:16px; font-weight:500; color:var(--noir); margin-bottom:8px; }
+.empty-sub { font-size:14px; line-height:1.6; }
+.back-btn { display:inline-flex; align-items:center; gap:8px; font-size:13px; color:var(--gris); cursor:pointer; margin-bottom:24px; transition:color 0.15s; background:none; border:none; font-family:'DM Sans',sans-serif; }
+.back-btn:hover { color:var(--noir); }
+.toast { position:fixed; bottom:24px; right:24px; z-index:999; background:var(--noir); color:white; padding:12px 20px; border-radius:8px; font-size:13px; font-weight:500; transform:translateY(20px); opacity:0; transition:all 0.25s; pointer-events:none; }
+.toast.show { transform:translateY(0); opacity:1; }
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--gris-light); border-radius:10px; }
+
+@media(max-width:768px) {
+  nav { padding:16px 24px; }
+  .nav-links { display:none; }
+  .hero { padding:100px 24px 60px; }
+  .land-section { padding:60px 24px; }
+  .land-section-dark { padding:60px 24px; }
+  .problem-grid { grid-template-columns:1fr; }
+  .steps-grid { grid-template-columns:1fr 1fr; }
+}
 </style>
 </head>
 <body>
 
-<!-- AUTH -->
+<!-- ── LANDING ── -->
+<div id="landing">
+<nav>
+  <a href="#" class="nav-logo">Immo<span>Rapid</span></a>
+  <div class="nav-links">
+    <a href="#comment">Comment ça marche</a>
+    <a href="#tarifs">Tarifs</a>
+    <button class="btn-nav" onclick="showAuth()">Tester gratuitement</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge">Pour agents immobiliers</div>
+  <h1>Vos comptes-rendus<br>de visite, <em>en 30 secondes.</em></h1>
+  <p class="hero-sub">Finissez une visite. Tapez 3 phrases. ImmoRapid génère un compte-rendu professionnel prêt à envoyer au vendeur.</p>
+  <div class="hero-cta">
+    <button class="btn-primary-land" onclick="showAuth()">Tester gratuitement →</button>
+    <button class="btn-secondary-land" onclick="scrollTo('#comment')">Voir comment ça marche</button>
+  </div>
+  <div class="launch-banner">Gratuit pendant le lancement — 9€/mois ensuite, sans engagement</div>
+</section>
+
+<section class="land-section" id="probleme">
+  <div class="section-label">Le problème</div>
+  <div class="section-title">Ce que vous faites après chaque visite, en vrai.</div>
+  <div class="problem-grid">
+    <div class="problem-card"><p><strong>Vous oubliez les détails.</strong> Entre la visite et le soir, la moitié des infos importantes s'évaporent.</p></div>
+    <div class="problem-card"><p><strong>Vous procrastinez.</strong> Rédiger un CR complet prend 20 minutes — alors vous reportez.</p></div>
+    <div class="problem-card"><p><strong>Le vendeur s'impatiente.</strong> Il veut des nouvelles. Vous n'avez rien à lui envoyer.</p></div>
+    <div class="problem-card"><p><strong>Vos CR manquent de pro.</strong> Un message rapide sur WhatsApp, c'est pas ce qu'attend un mandant.</p></div>
+  </div>
+</section>
+
+<section class="land-section-dark" id="comment">
+  <div class="section-label">Comment ça marche</div>
+  <div class="section-title" style="color:white">Quatre étapes, trente secondes.</div>
+  <div class="steps-grid">
+    <div class="step"><div class="step-num">01</div><h3>Entrez le bien</h3><p>Adresse, type, prix, infos vendeur. Une fois pour toutes.</p></div>
+    <div class="step"><div class="step-num">02</div><h3>Tapez vos impressions</h3><p>En vrac, comme vous le sentez. Pas besoin de structure.</p></div>
+    <div class="step"><div class="step-num">03</div><h3>L'IA génère</h3><p>Un CR complet, professionnel et personnalisé en quelques secondes.</p></div>
+    <div class="step"><div class="step-num">04</div><h3>Envoyez</h3><p>Email prêt, PDF téléchargeable, ou texte WhatsApp. Vous choisissez.</p></div>
+  </div>
+</section>
+
+<section class="land-section" id="tarifs" style="display:flex;flex-direction:column;align-items:center;text-align:center">
+  <div class="section-label">Tarifs</div>
+  <div class="section-title" style="max-width:100%">Simple. Prévisible. Sans engagement.</div>
+  <div class="pricing-grid" style="margin-top:60px">
+    <div class="pricing-card">
+      <div class="pricing-badge">🎉 Lancement gratuit</div>
+      <div class="pricing-name">Starter</div>
+      <div class="pricing-price"><sup>€</sup>9<sub>/mois</sub></div>
+      <div class="pricing-launch">Gratuit pendant le lancement</div>
+      <p class="pricing-desc">Tout ce qu'il faut pour gagner du temps sur vos visites au quotidien.</p>
+      <ul class="pricing-features">
+        <li>Comptes-rendus de visite illimités</li>
+        <li>3 formats (email vendeur, PDF, WhatsApp)</li>
+        <li>Gestion de vos biens</li>
+        <li>Contacts acheteurs &amp; vendeurs</li>
+        <li>Historique de toutes vos visites</li>
+        <li>Matching acheteurs / biens</li>
+      </ul>
+      <button class="btn-plan" onclick="showAuth()">Commencer gratuitement</button>
+    </div>
+  </div>
+</section>
+
+<footer style="background:var(--noir);color:rgba(248,245,240,0.4);padding:48px 60px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+  <a href="#" class="nav-logo" style="color:white">Immo<span style="color:var(--or)">Rapid</span></a>
+  <p style="font-size:13px">© 2026 ImmoRapid · Fait pour les agents immobiliers français</p>
+  <p style="font-size:13px">Mentions légales · CGV · Confidentialité</p>
+</footer>
+</div>
+
+<!-- ── AUTH ── -->
 <div id="auth-screen">
   <div class="auth-card">
     <div class="auth-logo">Immo<span>Rapid</span></div>
@@ -219,10 +369,11 @@ textarea.form-input{resize:vertical;min-height:90px;}
     <input class="auth-input" id="auth-password" type="password" placeholder="Mot de passe" onkeydown="if(event.key==='Enter')authAction()">
     <button class="auth-btn" onclick="authAction()" id="auth-btn">Se connecter</button>
     <div class="auth-error" id="auth-error"></div>
+    <button class="auth-back" onclick="showLanding()">← Retour à l'accueil</button>
   </div>
 </div>
 
-<!-- APP -->
+<!-- ── APP ── -->
 <div id="app">
 <div class="layout">
   <aside class="sidebar">
@@ -231,12 +382,12 @@ textarea.form-input{resize:vertical;min-height:90px;}
       <div class="logo-sub">Espace agent</div>
     </div>
     <nav class="sidebar-nav">
-      <div class="nav-section">Principal</div>
+      <div class="nav-section-label">Principal</div>
       <button class="nav-item active" onclick="showView('dashboard',this)"><span class="icon">⊞</span>Tableau de bord</button>
       <button class="nav-item" onclick="showView('biens',this)"><span class="icon">🏠</span>Mes biens</button>
       <button class="nav-item" onclick="showView('visites',this)"><span class="icon">📋</span>Toutes les visites</button>
       <button class="nav-item" onclick="showView('contacts',this)"><span class="icon">👥</span>Contacts</button>
-      <div class="nav-section">Actions</div>
+      <div class="nav-section-label">Actions</div>
       <button class="nav-item" onclick="openModalCR(null)"><span class="icon">✦</span>Générer un CR</button>
     </nav>
     <div class="sidebar-bottom">
@@ -249,6 +400,7 @@ textarea.form-input{resize:vertical;min-height:90px;}
   </aside>
 
   <main class="main">
+    <div class="app-banner">🎉 ImmoRapid est gratuit pendant le lancement <span>9€/mois ensuite · sans engagement</span></div>
     <div class="topbar">
       <div class="topbar-title" id="topbar-title">Tableau de bord</div>
       <div id="topbar-actions"></div>
@@ -284,7 +436,7 @@ textarea.form-input{resize:vertical;min-height:90px;}
 </div>
 </div>
 
-<!-- MODAL BIEN -->
+<!-- MODALS -->
 <div class="modal-overlay" id="modal-bien">
   <div class="modal">
     <div class="modal-header"><div class="modal-title">Nouveau bien</div><button class="modal-close" onclick="closeModal('modal-bien')">✕</button></div>
@@ -312,7 +464,6 @@ textarea.form-input{resize:vertical;min-height:90px;}
   </div>
 </div>
 
-<!-- MODAL CR -->
 <div class="modal-overlay" id="modal-cr">
   <div class="modal" style="max-width:640px">
     <div class="modal-header"><div class="modal-title">Nouveau compte-rendu</div><button class="modal-close" onclick="closeModal('modal-cr')">✕</button></div>
@@ -337,7 +488,7 @@ textarea.form-input{resize:vertical;min-height:90px;}
         <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="cr-date" type="date"></div>
       </div>
       <div class="form-group"><label class="form-label">Intérêt</label><select class="form-input" id="cr-interest"><option value="high">🟢 Très intéressé</option><option value="med">🟡 Intéressé</option><option value="low">🔴 Peu intéressé</option></select></div>
-      <div class="form-group"><label class="form-label">Impressions (en vrac, l'IA s'occupe du reste)</label><textarea class="form-input" id="cr-impressions" style="min-height:100px" placeholder="Ex: Couple 35 ans, attirés par la luminosité, inquiets du bruit..."></textarea></div>
+      <div class="form-group"><label class="form-label">Impressions (en vrac)</label><textarea class="form-input" id="cr-impressions" style="min-height:100px" placeholder="Ex: Couple 35 ans, attirés par la luminosité, inquiets du bruit..."></textarea></div>
       <div class="modal-footer" style="margin-top:0">
         <button class="btn btn-ghost" onclick="closeModal('modal-cr')">Annuler</button>
         <button class="btn btn-primary" onclick="genererCR()">✦ Générer le CR</button>
@@ -362,7 +513,6 @@ textarea.form-input{resize:vertical;min-height:90px;}
   </div>
 </div>
 
-<!-- MODAL CONTACT -->
 <div class="modal-overlay" id="modal-contact">
   <div class="modal">
     <div class="modal-header"><div class="modal-title">Nouveau contact</div><button class="modal-close" onclick="closeModal('modal-contact')">✕</button></div>
@@ -407,559 +557,268 @@ let pendingCR = null;
 let contactFilter = 'tous';
 let authMode = 'login';
 
-// ── AUTH ──
-function switchAuthTab(mode, btn) {
-  authMode = mode;
-  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('auth-btn').textContent = mode === 'login' ? 'Se connecter' : 'Créer mon compte';
-  document.getElementById('auth-error').textContent = '';
+// ── SCREENS ──
+function showLanding() {
+  document.getElementById('landing').style.display='block';
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app').style.display='none';
 }
 
-function authAction() {
-  if (authMode === 'login') signIn();
-  else signUp();
-}
-
-async function signIn() {
-  const email = document.getElementById('auth-email').value;
-  const password = document.getElementById('auth-password').value;
-  const err = document.getElementById('auth-error');
-  err.style.color = 'var(--danger)'; err.textContent = '';
-  if (!email || !password) { err.textContent = 'Email et mot de passe requis.'; return; }
-  const { error } = await supa.auth.signInWithPassword({ email, password });
-  if (error) err.textContent = 'Email ou mot de passe incorrect.';
-}
-
-async function signUp() {
-  const email = document.getElementById('auth-email').value;
-  const password = document.getElementById('auth-password').value;
-  const err = document.getElementById('auth-error');
-  err.style.color = 'var(--danger)'; err.textContent = '';
-  if (!email || !password) { err.textContent = 'Email et mot de passe requis.'; return; }
-  if (password.length < 6) { err.textContent = 'Mot de passe trop court (6 caractères min).'; return; }
-  const { error } = await supa.auth.signUp({ email, password });
-  if (error) err.textContent = error.message;
-  else { err.style.color = 'var(--or)'; err.textContent = 'Compte créé ! Vérifiez votre email pour confirmer.'; }
-}
-
-async function signOut() {
-  await supa.auth.signOut();
-}
-
-// ── INIT ──
-async function init() {
-  const { data: { session } } = await supa.auth.getSession();
-  if (session) { currentUser = session.user; await loadAll(); showApp(); }
-  else showAuthScreen();
-
-  supa.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN') { currentUser = session.user; await loadAll(); showApp(); }
-    if (event === 'SIGNED_OUT') { currentUser = null; state = {biens:[],visites:[],contacts:[]}; showAuthScreen(); }
-  });
+function showAuth() {
+  document.getElementById('landing').style.display='none';
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
 }
 
 function showApp() {
-  document.getElementById('auth-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
+  document.getElementById('landing').style.display='none';
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app').style.display='block';
   document.getElementById('user-name-display').textContent = currentUser.email.split('@')[0];
   renderDashboard();
 }
 
-function showAuthScreen() {
-  document.getElementById('auth-screen').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
+function scrollTo(id) { document.querySelector(id)?.scrollIntoView({behavior:'smooth'}); }
+
+// ── AUTH ──
+function switchAuthTab(mode, btn) {
+  authMode = mode;
+  document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('auth-btn').textContent = mode==='login'?'Se connecter':'Créer mon compte';
+  document.getElementById('auth-error').textContent='';
+}
+
+function authAction() { authMode==='login'?signIn():signUp(); }
+
+async function signIn() {
+  const email=document.getElementById('auth-email').value;
+  const password=document.getElementById('auth-password').value;
+  const err=document.getElementById('auth-error');
+  err.style.color='var(--danger)'; err.textContent='';
+  if(!email||!password){err.textContent='Email et mot de passe requis.';return;}
+  const {error}=await supa.auth.signInWithPassword({email,password});
+  if(error) err.textContent='Email ou mot de passe incorrect.';
+}
+
+async function signUp() {
+  const email=document.getElementById('auth-email').value;
+  const password=document.getElementById('auth-password').value;
+  const err=document.getElementById('auth-error');
+  err.style.color='var(--danger)'; err.textContent='';
+  if(!email||!password){err.textContent='Email et mot de passe requis.';return;}
+  if(password.length<6){err.textContent='Mot de passe trop court (6 caractères min).';return;}
+  const {error}=await supa.auth.signUp({email,password});
+  if(error) err.textContent=error.message;
+  else{err.style.color='var(--or)';err.textContent='Compte créé ! Vérifiez votre email pour confirmer.';}
+}
+
+async function signOut() { await supa.auth.signOut(); showLanding(); }
+
+// ── INIT ──
+async function init() {
+  const {data:{session}}=await supa.auth.getSession();
+  if(session){currentUser=session.user;await loadAll();showApp();}
+  else showLanding();
+  supa.auth.onAuthStateChange(async(event,session)=>{
+    if(event==='SIGNED_IN'){currentUser=session.user;await loadAll();showApp();}
+    if(event==='SIGNED_OUT'){currentUser=null;state={biens:[],visites:[],contacts:[]};showLanding();}
+  });
 }
 
 // ── LOAD ──
 async function loadAll() {
-  const uid = currentUser.id;
-  const [b, v, c] = await Promise.all([
-    supa.from('biens').select('*').eq('user_id', uid).order('created_at', {ascending:false}),
-    supa.from('visites').select('*').eq('user_id', uid).order('saved_at', {ascending:false}),
-    supa.from('contacts').select('*').eq('user_id', uid).order('created_at', {ascending:false}),
+  const uid=currentUser.id;
+  const [b,v,c]=await Promise.all([
+    supa.from('biens').select('*').eq('user_id',uid).order('created_at',{ascending:false}),
+    supa.from('visites').select('*').eq('user_id',uid).order('saved_at',{ascending:false}),
+    supa.from('contacts').select('*').eq('user_id',uid).order('created_at',{ascending:false}),
   ]);
-  state.biens = (b.data||[]).map(dbToBien);
-  state.visites = (v.data||[]).map(dbToVisite);
-  state.contacts = (c.data||[]).map(dbToContact);
+  state.biens=(b.data||[]).map(dbToBien);
+  state.visites=(v.data||[]).map(dbToVisite);
+  state.contacts=(c.data||[]).map(dbToContact);
 }
 
-function dbToBien(r) { return {id:r.id,type:r.type,adresse:r.adresse,prix:r.prix,surface:r.surface,pieces:r.pieces,vendeur:r.vendeur,vendeurTel:r.vendeur_tel,vendeurEmail:r.vendeur_email,notes:r.notes,createdAt:r.created_at}; }
-function dbToVisite(r) { return {id:r.id,bienId:r.bien_id,visiteur:r.visiteur,tel:r.tel,email:r.email,age:r.age,budget:r.budget,typeRecherche:r.type_recherche,secteur:r.secteur,date:r.date,interest:r.interest,impressions:r.impressions,cr:{email:r.cr_email,pdf:r.cr_pdf,court:r.cr_court},savedAt:r.saved_at}; }
-function dbToContact(r) { return {id:r.id,auto:false,role:r.role,nom:r.nom,tel:r.tel,email:r.email,age:r.age,budget:r.budget,typeRecherche:r.type_recherche,secteur:r.secteur,notes:r.notes,createdAt:r.created_at}; }
+function dbToBien(r){return{id:r.id,type:r.type,adresse:r.adresse,prix:r.prix,surface:r.surface,pieces:r.pieces,vendeur:r.vendeur,vendeurTel:r.vendeur_tel,vendeurEmail:r.vendeur_email,notes:r.notes,createdAt:r.created_at};}
+function dbToVisite(r){return{id:r.id,bienId:r.bien_id,visiteur:r.visiteur,tel:r.tel,email:r.email,age:r.age,budget:r.budget,typeRecherche:r.type_recherche,secteur:r.secteur,date:r.date,interest:r.interest,impressions:r.impressions,cr:{email:r.cr_email,pdf:r.cr_pdf,court:r.cr_court},savedAt:r.saved_at};}
+function dbToContact(r){return{id:r.id,auto:false,role:r.role,nom:r.nom,tel:r.tel,email:r.email,age:r.age,budget:r.budget,typeRecherche:r.type_recherche,secteur:r.secteur,notes:r.notes,createdAt:r.created_at};}
 
-// ── CONTACTS AGGREGATION ──
-function getAllContacts() {
-  const all = [...state.contacts];
-  state.biens.forEach(b => {
-    if (b.vendeur && !all.find(c => c.sourceId===b.id && c.role==='vendeur')) {
-      all.push({id:'v_'+b.id,sourceId:b.id,role:'vendeur',nom:b.vendeur,tel:b.vendeurTel||'',email:b.vendeurEmail||'',age:'',budget:'',typeRecherche:'',secteur:'',notes:'',auto:true});
-    }
-  });
-  state.visites.forEach(v => {
-    if (v.visiteur && !all.find(c => c.nom===v.visiteur && c.role==='acheteur')) {
-      all.push({id:'a_'+v.id,sourceId:v.id,role:'acheteur',nom:v.visiteur,tel:v.tel||'',email:v.email||'',age:v.age||'',budget:v.budget||'',typeRecherche:v.typeRecherche||'',secteur:v.secteur||'',notes:'',auto:true});
-    }
-  });
+// ── CONTACTS ──
+function getAllContacts(){
+  const all=[...state.contacts];
+  state.biens.forEach(b=>{if(b.vendeur&&!all.find(c=>c.sourceId===b.id&&c.role==='vendeur'))all.push({id:'v_'+b.id,sourceId:b.id,role:'vendeur',nom:b.vendeur,tel:b.vendeurTel||'',email:b.vendeurEmail||'',age:'',budget:'',typeRecherche:'',secteur:'',notes:'',auto:true});});
+  state.visites.forEach(v=>{if(v.visiteur&&!all.find(c=>c.nom===v.visiteur&&c.role==='acheteur'))all.push({id:'a_'+v.id,sourceId:v.id,role:'acheteur',nom:v.visiteur,tel:v.tel||'',email:v.email||'',age:v.age||'',budget:v.budget||'',typeRecherche:v.typeRecherche||'',secteur:v.secteur||'',notes:'',auto:true});});
   return all;
 }
-
-function getContactVisites(c) { return state.visites.filter(v => v.visiteur===c.nom || v.id===c.sourceId); }
-function getContactBiens(c) { return state.biens.filter(b => b.id===c.sourceId || b.vendeur===c.nom); }
-
-function getMatchingBiens(contact) {
-  if (contact.role!=='acheteur' || !contact.budget) return [];
-  const budgetNum = parseBudget(contact.budget);
-  if (!budgetNum) return [];
-  return state.biens.map(b => {
-    const prix = parseBudget(b.prix);
-    if (!prix) return null;
-    let score = 0;
-    if (prix <= budgetNum) score += 50;
-    else if (prix <= budgetNum*1.1) score += 35;
-    else if (prix <= budgetNum*1.2) score += 20;
-    else return null;
-    if (contact.typeRecherche && b.type===contact.typeRecherche) score += 30;
-    if (contact.secteur && b.adresse && b.adresse.toLowerCase().includes(contact.secteur.toLowerCase().split(/[\s,]/)[0])) score += 20;
-    return score > 0 ? {...b, score} : null;
+function getContactVisites(c){return state.visites.filter(v=>v.visiteur===c.nom||v.id===c.sourceId);}
+function getContactBiens(c){return state.biens.filter(b=>b.id===c.sourceId||b.vendeur===c.nom);}
+function getMatchingBiens(contact){
+  if(contact.role!=='acheteur'||!contact.budget)return[];
+  const budgetNum=parseBudget(contact.budget);
+  if(!budgetNum)return[];
+  return state.biens.map(b=>{
+    const prix=parseBudget(b.prix);if(!prix)return null;
+    let score=0;
+    if(prix<=budgetNum)score+=50;else if(prix<=budgetNum*1.1)score+=35;else if(prix<=budgetNum*1.2)score+=20;else return null;
+    if(contact.typeRecherche&&b.type===contact.typeRecherche)score+=30;
+    if(contact.secteur&&b.adresse&&b.adresse.toLowerCase().includes(contact.secteur.toLowerCase().split(/[\s,]/)[0]))score+=20;
+    return score>0?{...b,score}:null;
   }).filter(Boolean).sort((a,b)=>b.score-a.score).slice(0,5);
 }
-
-function parseBudget(s) { return parseInt((s||'').replace(/[^\d]/g,''))||0; }
+function parseBudget(s){return parseInt((s||'').replace(/[^\d]/g,''))||0;}
 
 // ── NAV ──
-function showView(name, btn) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+function showView(name,btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  const titles = {dashboard:'Tableau de bord',biens:'Mes biens',visites:'Toutes les visites',contacts:'Contacts',fiche:'Fiche bien',cr:'Compte-rendu','contact-detail':'Fiche contact'};
-  document.getElementById('topbar-title').textContent = titles[name]||'';
-  const actions = document.getElementById('topbar-actions');
-  actions.innerHTML = '';
-  if (name==='dashboard') renderDashboard();
-  if (name==='biens') { renderBiens(); addBtn(actions,'+ Nouveau bien',openModalBien,'btn-primary'); }
-  if (name==='visites') renderVisites();
-  if (name==='contacts') { renderContacts(); addBtn(actions,'+ Nouveau contact',()=>openModal('modal-contact'),'btn-primary'); }
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const titles={dashboard:'Tableau de bord',biens:'Mes biens',visites:'Toutes les visites',contacts:'Contacts',fiche:'Fiche bien',cr:'Compte-rendu','contact-detail':'Fiche contact'};
+  document.getElementById('topbar-title').textContent=titles[name]||'';
+  const actions=document.getElementById('topbar-actions');actions.innerHTML='';
+  if(name==='dashboard')renderDashboard();
+  if(name==='biens'){renderBiens();addBtn(actions,'+ Nouveau bien',openModalBien,'btn-primary');}
+  if(name==='visites')renderVisites();
+  if(name==='contacts'){renderContacts();addBtn(actions,'+ Nouveau contact',()=>openModal('modal-contact'),'btn-primary');}
 }
-
-function addBtn(c,l,fn,cls) { const b=document.createElement('button'); b.className='btn '+cls; b.textContent=l; b.onclick=fn; c.appendChild(b); }
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-function openModalBien() { openModal('modal-bien'); }
-
-function openModalCR(bienId) {
+function addBtn(c,l,fn,cls){const b=document.createElement('button');b.className='btn '+cls;b.textContent=l;b.onclick=fn;c.appendChild(b);}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function openModalBien(){openModal('modal-bien');}
+function openModalCR(bienId){
   document.getElementById('cr-form-section').style.display='block';
   document.getElementById('cr-output-section').style.display='none';
   ['cr-visiteur','cr-tel','cr-email','cr-age','cr-budget','cr-secteur','cr-impressions'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('cr-date').value=new Date().toISOString().split('T')[0];
-  document.getElementById('cr-type-recherche').value='';
-  document.getElementById('cr-interest').value='high';
-  generatedCR={};
-  const sel=document.getElementById('cr-bien-select');
-  sel.innerHTML='<option value="">— Aucun bien sélectionné —</option>';
-  state.biens.forEach(b=>{ const o=document.createElement('option'); o.value=b.id; o.textContent=b.adresse+' ('+b.type+')'; if(b.id===bienId) o.selected=true; sel.appendChild(o); });
+  document.getElementById('cr-type-recherche').value='';document.getElementById('cr-interest').value='high';generatedCR={};
+  const sel=document.getElementById('cr-bien-select');sel.innerHTML='<option value="">— Aucun bien sélectionné —</option>';
+  state.biens.forEach(b=>{const o=document.createElement('option');o.value=b.id;o.textContent=b.adresse+' ('+b.type+')';if(b.id===bienId)o.selected=true;sel.appendChild(o);});
   openModal('modal-cr');
 }
 
 // ── SAVE BIEN ──
-async function saveBien() {
-  const bien = {
-    user_id: currentUser.id,
-    type: document.getElementById('bien-type').value,
-    adresse: document.getElementById('bien-adresse').value||'Adresse non renseignée',
-    prix: document.getElementById('bien-prix').value,
-    surface: document.getElementById('bien-surface').value,
-    pieces: document.getElementById('bien-pieces').value,
-    vendeur: document.getElementById('bien-vendeur').value,
-    vendeur_tel: document.getElementById('bien-vendeur-tel').value,
-    vendeur_email: document.getElementById('bien-vendeur-email').value,
-    notes: document.getElementById('bien-notes').value,
-  };
-  const {data, error} = await supa.from('biens').insert(bien).select().single();
-  if (error) { showToast('Erreur : '+error.message); return; }
-  state.biens.unshift(dbToBien(data));
-  closeModal('modal-bien');
-  showToast('✓ Bien ajouté');
-  renderBiens();
+async function saveBien(){
+  const bien={user_id:currentUser.id,type:document.getElementById('bien-type').value,adresse:document.getElementById('bien-adresse').value||'Adresse non renseignée',prix:document.getElementById('bien-prix').value,surface:document.getElementById('bien-surface').value,pieces:document.getElementById('bien-pieces').value,vendeur:document.getElementById('bien-vendeur').value,vendeur_tel:document.getElementById('bien-vendeur-tel').value,vendeur_email:document.getElementById('bien-vendeur-email').value,notes:document.getElementById('bien-notes').value};
+  const{data,error}=await supa.from('biens').insert(bien).select().single();
+  if(error){showToast('Erreur : '+error.message);return;}
+  state.biens.unshift(dbToBien(data));closeModal('modal-bien');showToast('✓ Bien ajouté');renderBiens();
   ['bien-adresse','bien-prix','bien-surface','bien-pieces','bien-vendeur','bien-vendeur-tel','bien-vendeur-email','bien-notes'].forEach(id=>document.getElementById(id).value='');
 }
 
-// ── SAVE CONTACT ──
-async function saveContact() {
-  const contact = {
-    user_id: currentUser.id,
-    role: document.getElementById('mc-role').value,
-    nom: document.getElementById('mc-nom').value||'Contact sans nom',
-    tel: document.getElementById('mc-tel').value,
-    email: document.getElementById('mc-email').value,
-    age: document.getElementById('mc-age').value,
-    budget: document.getElementById('mc-budget').value,
-    type_recherche: document.getElementById('mc-type').value,
-    secteur: document.getElementById('mc-secteur').value,
-    notes: document.getElementById('mc-notes').value,
-  };
-  const {data, error} = await supa.from('contacts').insert(contact).select().single();
-  if (error) { showToast('Erreur : '+error.message); return; }
-  state.contacts.unshift(dbToContact(data));
-  closeModal('modal-contact');
-  showToast('✓ Contact ajouté');
-  renderContacts();
+async function saveContact(){
+  const contact={user_id:currentUser.id,role:document.getElementById('mc-role').value,nom:document.getElementById('mc-nom').value||'Contact sans nom',tel:document.getElementById('mc-tel').value,email:document.getElementById('mc-email').value,age:document.getElementById('mc-age').value,budget:document.getElementById('mc-budget').value,type_recherche:document.getElementById('mc-type').value,secteur:document.getElementById('mc-secteur').value,notes:document.getElementById('mc-notes').value};
+  const{data,error}=await supa.from('contacts').insert(contact).select().single();
+  if(error){showToast('Erreur : '+error.message);return;}
+  state.contacts.unshift(dbToContact(data));closeModal('modal-contact');showToast('✓ Contact ajouté');renderContacts();
 }
 
 // ── RENDER BIENS ──
-function renderBiens() {
-  const grid = document.getElementById('biens-grid');
-  if (!state.biens.length) { grid.innerHTML=emptyState('🏠','Aucun bien','Ajoutez votre premier bien.'); return; }
-  grid.innerHTML = state.biens.map(b => {
-    const v = state.visites.filter(vi=>vi.bienId===b.id).length;
-    return `<div class="bien-card" onclick="showFiche('${b.id}')">
-      <div class="bien-type-badge">${b.type}</div>
-      <div class="bien-adresse">${b.adresse}</div>
-      <div class="bien-details">${b.surface?b.surface+'m²':''} ${b.pieces?'· '+b.pieces+' pièces':''} ${b.vendeur?'· '+b.vendeur:''}</div>
-      <div class="bien-footer"><div class="bien-visits"><div class="visit-dot"></div>${v} visite${v>1?'s':''}</div><div class="bien-prix">${b.prix||'—'}</div></div>
-    </div>`;
+function renderBiens(){
+  const grid=document.getElementById('biens-grid');
+  if(!state.biens.length){grid.innerHTML=emptyState('🏠','Aucun bien','Ajoutez votre premier bien.');return;}
+  grid.innerHTML=state.biens.map(b=>{const v=state.visites.filter(vi=>vi.bienId===b.id).length;return`<div class="bien-card" onclick="showFiche('${b.id}')"><div class="bien-type-badge">${b.type}</div><div class="bien-adresse">${b.adresse}</div><div class="bien-details">${b.surface?b.surface+'m²':''} ${b.pieces?'· '+b.pieces+' pièces':''} ${b.vendeur?'· '+b.vendeur:''}</div><div class="bien-footer"><div class="bien-visits"><div class="visit-dot"></div>${v} visite${v>1?'s':''}</div><div class="bien-prix">${b.prix||'—'}</div></div></div>`;}).join('');
+}
+
+function showFiche(bienId){
+  currentBienId=bienId;const bien=state.biens.find(b=>b.id===bienId);if(!bien)return;
+  const visites=state.visites.filter(v=>v.bienId===bienId);
+  document.getElementById('fiche-back').onclick=()=>showView('biens',document.querySelectorAll('.nav-item')[1]);
+  document.getElementById('fiche-content').innerHTML=`<div style="background:white;border:1px solid var(--gris-light);border-radius:16px;padding:32px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px"><div><div style="font-size:11px;color:var(--or);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">${bien.type}</div><div style="font-family:'Clash Display',sans-serif;font-size:28px;font-weight:700;letter-spacing:-0.8px;margin-bottom:8px">${bien.adresse}</div><div style="font-size:14px;color:var(--gris);display:flex;gap:20px;flex-wrap:wrap">${bien.surface?'<span>'+bien.surface+' m²</span>':''}${bien.pieces?'<span>'+bien.pieces+' pièces</span>':''}${bien.vendeur?'<span>Vendeur : '+bien.vendeur+'</span>':''}${bien.vendeurTel?'<span>📞 '+bien.vendeurTel+'</span>':''}</div></div><div style="font-family:'Clash Display',sans-serif;font-size:28px;font-weight:700">${bien.prix||'—'}</div></div><div class="section-header"><div class="section-title">Visites (${visites.length})</div><button class="btn btn-primary" onclick="openModalCR('${bienId}')">+ Nouvelle visite</button></div><div class="visite-list">${!visites.length?emptyState('📋','Aucune visite','Générez votre premier CR.'):visites.map(v=>`<div class="visite-card" onclick="showCR('${v.id}','${bienId}')"><div><div class="visite-visiteur">${v.visiteur}</div><div class="visite-meta"><span>${formatDate(v.date)}</span>${v.budget?'<span>'+v.budget+'</span>':''}</div></div><div style="display:flex;gap:8px;align-items:center"><span class="interest-badge ${interestClass(v.interest)}">${interestLabel(v.interest)}</span><button class="btn btn-ghost" style="padding:7px 12px;font-size:12px">Voir CR →</button></div></div>`).join('')}</div>`;
+  showView('fiche',null);document.getElementById('topbar-title').textContent=bien.adresse;
+  const actions=document.getElementById('topbar-actions');actions.innerHTML='';addBtn(actions,'+ Nouvelle visite',()=>openModalCR(bienId),'btn-primary');
+}
+
+function renderContacts(){
+  const grid=document.getElementById('contacts-grid');
+  let contacts=getAllContacts();
+  if(contactFilter!=='tous')contacts=contacts.filter(c=>c.role===contactFilter);
+  if(!contacts.length){grid.innerHTML=emptyState('👥','Aucun contact','Les contacts apparaissent automatiquement depuis vos biens et visites.');return;}
+  grid.innerHTML=contacts.map(c=>{
+    const initials=c.nom.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2);
+    const visites=getContactVisites(c);const biens=getContactBiens(c);const matching=getMatchingBiens(c);
+    return`<div class="contact-card" onclick="showContactDetail('${c.id}')"><div class="contact-header"><div class="contact-avatar ${c.role==='acheteur'?'avatar-acheteur':'avatar-vendeur'}">${initials}</div><div><div class="contact-name">${c.nom}</div><div class="contact-role ${c.role==='acheteur'?'role-acheteur':'role-vendeur'}">${c.role==='acheteur'?'Acheteur':'Vendeur'}</div></div></div><div class="contact-infos">${c.tel?`<div class="contact-info-row"><span class="ci-icon">📞</span>${c.tel}</div>`:''}${c.email?`<div class="contact-info-row"><span class="ci-icon">✉</span>${c.email}</div>`:''}${c.budget?`<div class="contact-info-row"><span class="ci-icon">💰</span>Budget : ${c.budget}</div>`:''}${c.secteur?`<div class="contact-info-row"><span class="ci-icon">📍</span>${c.secteur}</div>`:''}</div><div class="contact-tags">${c.role==='acheteur'?`<span class="tag tag-or">${visites.length} visite${visites.length>1?'s':''}</span>`:''}${c.role==='vendeur'?`<span class="tag tag-green">${biens.length} bien${biens.length>1?'s':''}</span>`:''}${c.typeRecherche?`<span class="tag tag-blue">${c.typeRecherche}</span>`:''}${matching.length?`<span class="tag" style="background:#fff3e0;color:#e65100">✦ ${matching.length} match${matching.length>1?'s':''}</span>`:''}</div></div>`;
   }).join('');
 }
 
-// ── FICHE BIEN ──
-function showFiche(bienId) {
-  currentBienId = bienId;
-  const bien = state.biens.find(b=>b.id===bienId);
-  if (!bien) return;
-  const visites = state.visites.filter(v=>v.bienId===bienId);
-  document.getElementById('fiche-back').onclick = ()=>showView('biens',document.querySelectorAll('.nav-item')[1]);
-  document.getElementById('fiche-content').innerHTML = `
-    <div style="background:white;border:1px solid var(--gris-light);border-radius:16px;padding:32px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px">
-      <div>
-        <div style="font-size:11px;color:var(--or);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">${bien.type}</div>
-        <div style="font-family:'Clash Display',sans-serif;font-size:28px;font-weight:700;letter-spacing:-0.8px;margin-bottom:8px">${bien.adresse}</div>
-        <div style="font-size:14px;color:var(--gris);display:flex;gap:20px;flex-wrap:wrap">
-          ${bien.surface?'<span>'+bien.surface+' m²</span>':''}${bien.pieces?'<span>'+bien.pieces+' pièces</span>':''}
-          ${bien.vendeur?'<span>Vendeur : '+bien.vendeur+'</span>':''}${bien.vendeurTel?'<span>📞 '+bien.vendeurTel+'</span>':''}
-        </div>
-      </div>
-      <div style="font-family:'Clash Display',sans-serif;font-size:28px;font-weight:700">${bien.prix||'—'}</div>
-    </div>
-    <div class="section-header"><div class="section-title">Visites (${visites.length})</div><button class="btn btn-primary" onclick="openModalCR('${bienId}')">+ Nouvelle visite</button></div>
-    <div class="visite-list">
-      ${!visites.length ? emptyState('📋','Aucune visite','Générez votre premier CR pour ce bien.') :
-      visites.map(v=>`<div class="visite-card" onclick="showCR('${v.id}','${bienId}')">
-        <div><div class="visite-visiteur">${v.visiteur}</div><div class="visite-meta"><span>${formatDate(v.date)}</span>${v.budget?'<span>'+v.budget+'</span>':''}</div></div>
-        <div style="display:flex;gap:8px;align-items:center"><span class="interest-badge ${interestClass(v.interest)}">${interestLabel(v.interest)}</span><button class="btn btn-ghost" style="padding:7px 12px;font-size:12px">Voir CR →</button></div>
-      </div>`).join('')}
-    </div>`;
-  showView('fiche',null);
-  document.getElementById('topbar-title').textContent = bien.adresse;
-  const actions = document.getElementById('topbar-actions');
-  actions.innerHTML='';
-  addBtn(actions,'+ Nouvelle visite',()=>openModalCR(bienId),'btn-primary');
+function filterContacts(type,btn){contactFilter=type;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderContacts();}
+
+function showContactDetail(contactId){
+  const contact=getAllContacts().find(c=>c.id===contactId);if(!contact)return;
+  const visites=getContactVisites(contact);const biens=getContactBiens(contact);const matching=getMatchingBiens(contact);
+  const initials=contact.nom.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2);
+  document.getElementById('contact-back').onclick=()=>showView('contacts',document.querySelectorAll('.nav-item')[3]);
+  let html=`<div style="background:white;border:1px solid var(--gris-light);border-radius:16px;padding:32px;margin-bottom:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap"><div class="contact-avatar ${contact.role==='acheteur'?'avatar-acheteur':'avatar-vendeur'}" style="width:64px;height:64px;font-size:24px;flex-shrink:0">${initials}</div><div><div style="font-family:'Clash Display',sans-serif;font-size:28px;font-weight:700;letter-spacing:-0.8px">${contact.nom}</div><div style="display:flex;gap:16px;font-size:14px;color:var(--gris);margin-top:6px;flex-wrap:wrap"><span class="contact-role ${contact.role==='acheteur'?'role-acheteur':'role-vendeur'}">${contact.role==='acheteur'?'Acheteur':'Vendeur'}</span>${contact.tel?'<span>📞 '+contact.tel+'</span>':''}${contact.email?'<span>✉ '+contact.email+'</span>':''}${contact.age?'<span>'+contact.age+'</span>':''}</div></div></div><div class="info-grid">${contact.budget?`<div class="info-card"><div class="info-card-label">Budget</div><div class="info-card-value">${contact.budget}</div></div>`:''}${contact.typeRecherche?`<div class="info-card"><div class="info-card-label">Type recherché</div><div class="info-card-value">${contact.typeRecherche}</div></div>`:''}${contact.secteur?`<div class="info-card"><div class="info-card-label">Secteur</div><div class="info-card-value">${contact.secteur}</div></div>`:''}</div>`;
+  if(contact.role==='acheteur'&&matching.length)html+=`<div class="matching-section"><div class="matching-header"><div class="matching-icon">✦</div><div><div class="matching-title">Biens compatibles</div><div class="matching-sub">Basé sur le budget et les critères</div></div></div><div class="match-list">${matching.map(b=>`<div class="match-item" onclick="showFiche('${b.id}')"><div><div class="match-item-adresse">${b.adresse}</div><div class="match-item-meta"><span>${b.type}</span>${b.prix?'<span>'+b.prix+'</span>':''}${b.surface?'<span>'+b.surface+' m²</span>':''}</div></div><div class="match-score"><div class="match-bar"><div class="match-fill" style="width:${Math.min(100,b.score)}%"></div></div><span class="match-pct">${Math.min(100,b.score)}%</span></div></div>`).join('')}</div></div>`;
+  if(contact.role==='acheteur')html+=`<div class="section-header"><div class="section-title">Historique des visites (${visites.length})</div></div><div class="visite-list">${!visites.length?emptyState('📋','Aucune visite',''):visites.map(v=>{const bien=state.biens.find(b=>b.id===v.bienId);return`<div class="visite-card" onclick="showCR('${v.id}','${v.bienId||''}')"><div><div class="visite-visiteur">${bien?bien.adresse:'Bien non rattaché'}</div><div class="visite-meta"><span>${formatDate(v.date)}</span></div></div><span class="interest-badge ${interestClass(v.interest)}">${interestLabel(v.interest)}</span></div>`;}).join('')}</div>`;
+  if(contact.role==='vendeur')html+=`<div class="section-header" style="margin-top:24px"><div class="section-title">Biens en vente (${biens.length})</div></div><div class="bien-grid">${!biens.length?emptyState('🏠','Aucun bien',''):biens.map(b=>`<div class="bien-card" onclick="showFiche('${b.id}')"><div class="bien-type-badge">${b.type}</div><div class="bien-adresse">${b.adresse}</div><div class="bien-details">${b.surface?b.surface+'m²':''} ${b.pieces?'· '+b.pieces+' pièces':''}</div><div class="bien-footer"><div class="bien-visits"><div class="visit-dot"></div>${state.visites.filter(v=>v.bienId===b.id).length} visite(s)</div><div class="bien-prix">${b.prix||'—'}</div></div></div>`).join('')}</div>`;
+  document.getElementById('contact-detail-content').innerHTML=html;showView('contact-detail',null);document.getElementById('topbar-title').textContent=contact.nom;
 }
 
-// ── RENDER CONTACTS ──
-function renderContacts() {
-  const grid = document.getElementById('contacts-grid');
-  let contacts = getAllContacts();
-  if (contactFilter!=='tous') contacts = contacts.filter(c=>c.role===contactFilter);
-  if (!contacts.length) { grid.innerHTML=emptyState('👥','Aucun contact','Les contacts apparaissent automatiquement depuis vos biens et visites.'); return; }
-  grid.innerHTML = contacts.map(c => {
-    const initials = c.nom.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2);
-    const visites = getContactVisites(c);
-    const biens = getContactBiens(c);
-    const matching = getMatchingBiens(c);
-    return `<div class="contact-card" onclick="showContactDetail('${c.id}')">
-      <div class="contact-header">
-        <div class="contact-avatar ${c.role==='acheteur'?'avatar-acheteur':'avatar-vendeur'}">${initials}</div>
-        <div><div class="contact-name">${c.nom}</div><div class="contact-role ${c.role==='acheteur'?'role-acheteur':'role-vendeur'}">${c.role==='acheteur'?'Acheteur':'Vendeur'}</div></div>
-      </div>
-      <div class="contact-infos">
-        ${c.tel?`<div class="contact-info-row"><span class="ci-icon">📞</span>${c.tel}</div>`:''}
-        ${c.email?`<div class="contact-info-row"><span class="ci-icon">✉</span>${c.email}</div>`:''}
-        ${c.budget?`<div class="contact-info-row"><span class="ci-icon">💰</span>Budget : ${c.budget}</div>`:''}
-        ${c.secteur?`<div class="contact-info-row"><span class="ci-icon">📍</span>${c.secteur}</div>`:''}
-      </div>
-      <div class="contact-tags">
-        ${c.role==='acheteur'?`<span class="tag tag-or">${visites.length} visite${visites.length>1?'s':''}</span>`:''}
-        ${c.role==='vendeur'?`<span class="tag tag-green">${biens.length} bien${biens.length>1?'s':''}</span>`:''}
-        ${c.typeRecherche?`<span class="tag tag-blue">${c.typeRecherche}</span>`:''}
-        ${matching.length?`<span class="tag" style="background:#fff3e0;color:#e65100">✦ ${matching.length} match${matching.length>1?'s':''}</span>`:''}
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function filterContacts(type, btn) {
-  contactFilter = type;
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderContacts();
-}
-
-// ── FICHE CONTACT ──
-function showContactDetail(contactId) {
-  const contact = getAllContacts().find(c=>c.id===contactId);
-  if (!contact) return;
-  const visites = getContactVisites(contact);
-  const biens = getContactBiens(contact);
-  const matching = getMatchingBiens(contact);
-  const initials = contact.nom.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2);
-  document.getElementById('contact-back').onclick = ()=>showView('contacts',document.querySelectorAll('.nav-item')[3]);
-
-  let html = `
-    <div style="background:white;border:1px solid var(--gris-light);border-radius:16px;padding:32px;margin-bottom:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
-      <div class="contact-avatar ${contact.role==='acheteur'?'avatar-acheteur':'avatar-vendeur'}" style="width:64px;height:64px;font-size:24px;flex-shrink:0">${initials}</div>
-      <div>
-        <div style="font-family:'Clash Display',sans-serif;font-size:28px;font-weight:700;letter-spacing:-0.8px">${contact.nom}</div>
-        <div style="display:flex;gap:16px;font-size:14px;color:var(--gris);margin-top:6px;flex-wrap:wrap">
-          <span class="contact-role ${contact.role==='acheteur'?'role-acheteur':'role-vendeur'}">${contact.role==='acheteur'?'Acheteur':'Vendeur'}</span>
-          ${contact.tel?'<span>📞 '+contact.tel+'</span>':''}
-          ${contact.email?'<span>✉ '+contact.email+'</span>':''}
-          ${contact.age?'<span>'+contact.age+'</span>':''}
-        </div>
-      </div>
-    </div>
-    <div class="info-grid">
-      ${contact.budget?`<div class="info-card"><div class="info-card-label">Budget</div><div class="info-card-value">${contact.budget}</div></div>`:''}
-      ${contact.typeRecherche?`<div class="info-card"><div class="info-card-label">Type recherché</div><div class="info-card-value">${contact.typeRecherche}</div></div>`:''}
-      ${contact.secteur?`<div class="info-card"><div class="info-card-label">Secteur</div><div class="info-card-value">${contact.secteur}</div></div>`:''}
-    </div>`;
-
-  if (contact.role==='acheteur' && matching.length) {
-    html += `<div class="matching-section">
-      <div class="matching-header"><div class="matching-icon">✦</div><div><div class="matching-title">Biens compatibles</div><div class="matching-sub">Basé sur le budget et les critères de recherche</div></div></div>
-      <div class="match-list">${matching.map(b=>`<div class="match-item" onclick="showFiche('${b.id}')">
-        <div><div class="match-item-adresse">${b.adresse}</div><div class="match-item-meta"><span>${b.type}</span>${b.prix?'<span>'+b.prix+'</span>':''}${b.surface?'<span>'+b.surface+' m²</span>':''}</div></div>
-        <div class="match-score"><div class="match-bar"><div class="match-fill" style="width:${Math.min(100,b.score)}%"></div></div><span class="match-pct">${Math.min(100,b.score)}%</span></div>
-      </div>`).join('')}</div>
-    </div>`;
-  }
-
-  if (contact.role==='acheteur') {
-    html += `<div class="section-header"><div class="section-title">Historique des visites (${visites.length})</div></div>
-    <div class="visite-list">${!visites.length?emptyState('📋','Aucune visite',''):visites.map(v=>{
-      const bien=state.biens.find(b=>b.id===v.bienId);
-      return `<div class="visite-card" onclick="showCR('${v.id}','${v.bienId||''}')">
-        <div><div class="visite-visiteur">${bien?bien.adresse:'Bien non rattaché'}</div><div class="visite-meta"><span>${formatDate(v.date)}</span></div></div>
-        <span class="interest-badge ${interestClass(v.interest)}">${interestLabel(v.interest)}</span>
-      </div>`;
-    }).join('')}</div>`;
-  }
-
-  if (contact.role==='vendeur') {
-    html += `<div class="section-header" style="margin-top:24px"><div class="section-title">Biens en vente (${biens.length})</div></div>
-    <div class="bien-grid">${!biens.length?emptyState('🏠','Aucun bien associé',''):biens.map(b=>`<div class="bien-card" onclick="showFiche('${b.id}')">
-      <div class="bien-type-badge">${b.type}</div><div class="bien-adresse">${b.adresse}</div>
-      <div class="bien-details">${b.surface?b.surface+'m²':''} ${b.pieces?'· '+b.pieces+' pièces':''}</div>
-      <div class="bien-footer"><div class="bien-visits"><div class="visit-dot"></div>${state.visites.filter(v=>v.bienId===b.id).length} visite(s)</div><div class="bien-prix">${b.prix||'—'}</div></div>
-    </div>`).join('')}</div>`;
-  }
-
-  document.getElementById('contact-detail-content').innerHTML = html;
-  showView('contact-detail',null);
-  document.getElementById('topbar-title').textContent = contact.nom;
-}
-
-// ── GENERATE CR ──
-async function genererCR() {
-  const bienId = document.getElementById('cr-bien-select').value;
-  const bien = state.biens.find(b=>b.id===bienId);
-  pendingCR = {
-    bienId, visiteur:document.getElementById('cr-visiteur').value||'Visiteur',
-    tel:document.getElementById('cr-tel').value, email:document.getElementById('cr-email').value,
-    age:document.getElementById('cr-age').value, budget:document.getElementById('cr-budget').value,
-    typeRecherche:document.getElementById('cr-type-recherche').value,
-    secteur:document.getElementById('cr-secteur').value,
-    date:document.getElementById('cr-date').value,
-    interest:document.getElementById('cr-interest').value,
-    impressions:document.getElementById('cr-impressions').value,
-  };
-  document.getElementById('cr-form-section').style.display='none';
-  document.getElementById('cr-output-section').style.display='block';
+async function genererCR(){
+  const bienId=document.getElementById('cr-bien-select').value;const bien=state.biens.find(b=>b.id===bienId);
+  pendingCR={bienId,visiteur:document.getElementById('cr-visiteur').value||'Visiteur',tel:document.getElementById('cr-tel').value,email:document.getElementById('cr-email').value,age:document.getElementById('cr-age').value,budget:document.getElementById('cr-budget').value,typeRecherche:document.getElementById('cr-type-recherche').value,secteur:document.getElementById('cr-secteur').value,date:document.getElementById('cr-date').value,interest:document.getElementById('cr-interest').value,impressions:document.getElementById('cr-impressions').value};
+  document.getElementById('cr-form-section').style.display='none';document.getElementById('cr-output-section').style.display='block';
   document.getElementById('cr-output-text').innerHTML=`<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div> Génération en cours...</div>`;
-  currentCRTab='email';
-  document.querySelectorAll('#modal-cr .cr-tab').forEach((t,i)=>t.classList.toggle('active',i===0));
-
-  const bienInfo = bien ? `Bien : ${bien.type} au ${bien.adresse}, ${bien.surface||'?'}m², ${bien.pieces||'?'} pièces, prix ${bien.prix||'?'}. Vendeur : ${bien.vendeur||'non précisé'}.` : 'Bien non précisé.';
-  const prompt = `Tu es un assistant pour agents immobiliers français. Génère un compte-rendu de visite professionnel.
-${bienInfo}
-Visiteur : ${pendingCR.visiteur}${pendingCR.age?' ('+pendingCR.age+')':''}
-Budget : ${pendingCR.budget||'non précisé'} — Type recherché : ${pendingCR.typeRecherche||'non précisé'}
-Date : ${pendingCR.date} — Impressions : ${pendingCR.impressions||'aucune précision'}
-
-Réponds UNIQUEMENT avec ce JSON valide sans backticks :
-{"email":"Email complet avec Objet: en 1ère ligne, corps pro et chaleureux","pdf":"CR structuré : Informations visite / Profil visiteur / Points positifs / Points d'attention / Prochaines étapes","court":"Version courte 3-4 lignes pour WhatsApp/SMS au vendeur"}`;
-
-  try {
-    const res = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
-    const data = await res.json();
-    generatedCR = JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());
-    document.getElementById('cr-output-text').textContent = generatedCR.email;
-  } catch(e) {
-    document.getElementById('cr-output-text').textContent = 'Erreur lors de la génération.';
-  }
+  currentCRTab='email';document.querySelectorAll('#modal-cr .cr-tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+  const bienInfo=bien?`Bien : ${bien.type} au ${bien.adresse}, ${bien.surface||'?'}m², ${bien.pieces||'?'} pièces, prix ${bien.prix||'?'}. Vendeur : ${bien.vendeur||'non précisé'}.`:'Bien non précisé.';
+  const prompt=`Tu es un assistant pour agents immobiliers français. Génère un compte-rendu de visite professionnel.\n${bienInfo}\nVisiteur : ${pendingCR.visiteur}${pendingCR.age?' ('+pendingCR.age+')':''}\nBudget : ${pendingCR.budget||'non précisé'} — Type recherché : ${pendingCR.typeRecherche||'non précisé'}\nDate : ${pendingCR.date} — Impressions : ${pendingCR.impressions||'aucune précision'}\n\nRéponds UNIQUEMENT avec ce JSON valide sans backticks :\n{"email":"Email complet avec Objet: en 1ère ligne, corps pro et chaleureux","pdf":"CR structuré : Informations visite / Profil visiteur / Points positifs / Points d'attention / Prochaines étapes","court":"Version courte 3-4 lignes pour WhatsApp/SMS au vendeur"}`;
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
+    const data=await res.json();
+    generatedCR=JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());
+    document.getElementById('cr-output-text').textContent=generatedCR.email;
+  }catch(e){document.getElementById('cr-output-text').textContent='Erreur lors de la génération.';}
 }
 
-function resetCRForm() { document.getElementById('cr-form-section').style.display='block'; document.getElementById('cr-output-section').style.display='none'; }
+function resetCRForm(){document.getElementById('cr-form-section').style.display='block';document.getElementById('cr-output-section').style.display='none';}
+function switchCRTab(tab,btn){currentCRTab=tab;document.querySelectorAll('#modal-cr .cr-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');document.getElementById('cr-output-text').textContent=generatedCR[tab]||'';}
+function copierCR(){navigator.clipboard.writeText(generatedCR[currentCRTab]||'').then(()=>{const btn=document.getElementById('btn-copy-cr');btn.textContent='✓ Copié!';setTimeout(()=>btn.textContent='📋 Copier',2000);});}
+function telechargerCR(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([generatedCR.pdf||generatedCR.email||''],{type:'text/plain;charset=utf-8'}));a.download='CR-visite.txt';a.click();}
 
-function switchCRTab(tab, btn) {
-  currentCRTab=tab;
-  document.querySelectorAll('#modal-cr .cr-tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('cr-output-text').textContent=generatedCR[tab]||'';
+async function sauvegarderCR(){
+  if(!pendingCR)return;
+  const visite={user_id:currentUser.id,bien_id:pendingCR.bienId||null,visiteur:pendingCR.visiteur,tel:pendingCR.tel,email:pendingCR.email,age:pendingCR.age,budget:pendingCR.budget,type_recherche:pendingCR.typeRecherche,secteur:pendingCR.secteur,date:pendingCR.date,interest:pendingCR.interest,impressions:pendingCR.impressions,cr_email:generatedCR.email||'',cr_pdf:generatedCR.pdf||'',cr_court:generatedCR.court||''};
+  const{data,error}=await supa.from('visites').insert(visite).select().single();
+  if(error){showToast('Erreur : '+error.message);return;}
+  state.visites.unshift(dbToVisite(data));closeModal('modal-cr');showToast('✓ CR sauvegardé');
+  if(currentBienId||pendingCR.bienId)showFiche(currentBienId||pendingCR.bienId);else renderDashboard();
 }
 
-function copierCR() {
-  navigator.clipboard.writeText(generatedCR[currentCRTab]||'').then(()=>{
-    const btn=document.getElementById('btn-copy-cr'); btn.textContent='✓ Copié!';
-    setTimeout(()=>btn.textContent='📋 Copier',2000);
-  });
+function renderVisites(){
+  const list=document.getElementById('visites-list');
+  if(!state.visites.length){list.innerHTML=emptyState('📋','Aucun compte-rendu','Générez votre premier CR.');return;}
+  list.innerHTML=state.visites.map(v=>{const bien=state.biens.find(b=>b.id===v.bienId);return`<div class="visite-card" onclick="showCR('${v.id}','${v.bienId||''}')"><div><div class="visite-visiteur">${v.visiteur}</div><div class="visite-meta"><span>${formatDate(v.date)}</span>${bien?'<span>'+bien.adresse+'</span>':'<span>Bien non rattaché</span>'}${v.budget?'<span>'+v.budget+'</span>':''}</div></div><div style="display:flex;gap:8px;align-items:center"><span class="interest-badge ${interestClass(v.interest)}">${interestLabel(v.interest)}</span><button class="btn btn-ghost" style="padding:7px 12px;font-size:12px">Voir →</button></div></div>`;}).join('');
 }
 
-function telechargerCR() {
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([generatedCR.pdf||generatedCR.email||''],{type:'text/plain;charset=utf-8'}));
-  a.download='CR-visite.txt'; a.click();
-}
-
-async function sauvegarderCR() {
-  if (!pendingCR) return;
-  const visite = {
-    user_id: currentUser.id,
-    bien_id: pendingCR.bienId||null,
-    visiteur: pendingCR.visiteur, tel:pendingCR.tel, email:pendingCR.email,
-    age:pendingCR.age, budget:pendingCR.budget, type_recherche:pendingCR.typeRecherche,
-    secteur:pendingCR.secteur, date:pendingCR.date, interest:pendingCR.interest,
-    impressions:pendingCR.impressions,
-    cr_email:generatedCR.email||'', cr_pdf:generatedCR.pdf||'', cr_court:generatedCR.court||'',
-  };
-  const {data, error} = await supa.from('visites').insert(visite).select().single();
-  if (error) { showToast('Erreur : '+error.message); return; }
-  state.visites.unshift(dbToVisite(data));
-  closeModal('modal-cr');
-  showToast('✓ CR sauvegardé');
-  if (currentBienId||pendingCR.bienId) showFiche(currentBienId||pendingCR.bienId);
-  else renderDashboard();
-}
-
-// ── RENDER VISITES ──
-function renderVisites() {
-  const list = document.getElementById('visites-list');
-  if (!state.visites.length) { list.innerHTML=emptyState('📋','Aucun compte-rendu','Générez votre premier CR.'); return; }
-  list.innerHTML = state.visites.map(v => {
-    const bien=state.biens.find(b=>b.id===v.bienId);
-    return `<div class="visite-card" onclick="showCR('${v.id}','${v.bienId||''}')">
-      <div><div class="visite-visiteur">${v.visiteur}</div><div class="visite-meta"><span>${formatDate(v.date)}</span>${bien?'<span>'+bien.adresse+'</span>':'<span>Bien non rattaché</span>'}${v.budget?'<span>'+v.budget+'</span>':''}</div></div>
-      <div style="display:flex;gap:8px;align-items:center"><span class="interest-badge ${interestClass(v.interest)}">${interestLabel(v.interest)}</span><button class="btn btn-ghost" style="padding:7px 12px;font-size:12px">Voir →</button></div>
-    </div>`;
-  }).join('');
-}
-
-// ── CR DETAIL ──
-function showCR(visitId, bienId) {
-  const visite = state.visites.find(v=>v.id===visitId);
-  const bien = state.biens.find(b=>b.id===(bienId||visite?.bienId));
-  if (!visite) return;
+function showCR(visitId,bienId){
+  const visite=state.visites.find(v=>v.id===visitId);const bien=state.biens.find(b=>b.id===(bienId||visite?.bienId));if(!visite)return;
   crDetailTab='email';
-  document.getElementById('cr-back-btn').onclick = ()=>{ if(bienId) showFiche(bienId); else showView('visites',document.querySelectorAll('.nav-item')[2]); };
-  document.getElementById('cr-content').innerHTML=`
-    <div style="background:white;border:1px solid var(--gris-light);border-radius:16px;padding:32px">
-      <div style="font-size:11px;color:var(--or);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Compte-rendu</div>
-      <div style="font-family:'Clash Display',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px">${visite.visiteur}</div>
-      ${bien?`<div style="font-size:14px;color:var(--gris);margin-bottom:20px">${bien.adresse}</div>`:''}
-      <div class="info-grid" style="margin-bottom:0">
-        <div class="info-card"><div class="info-card-label">Date</div><div class="info-card-value">${formatDate(visite.date)}</div></div>
-        <div class="info-card"><div class="info-card-label">Budget</div><div class="info-card-value">${visite.budget||'—'}</div></div>
-        <div class="info-card"><div class="info-card-label">Intérêt</div><div class="info-card-value"><span class="interest-badge ${interestClass(visite.interest)}">${interestLabel(visite.interest)}</span></div></div>
-        ${visite.tel?`<div class="info-card"><div class="info-card-label">Téléphone</div><div class="info-card-value">${visite.tel}</div></div>`:''}
-        ${visite.email?`<div class="info-card"><div class="info-card-label">Email</div><div class="info-card-value">${visite.email}</div></div>`:''}
-        ${visite.typeRecherche?`<div class="info-card"><div class="info-card-label">Recherche</div><div class="info-card-value">${visite.typeRecherche}</div></div>`:''}
-      </div>
-    </div>
-    <div class="cr-output">
-      <div class="cr-tabs">
-        <button class="cr-tab active" onclick="switchCRTabDetail('email',this,'${visitId}')">📧 Email vendeur</button>
-        <button class="cr-tab" onclick="switchCRTabDetail('pdf',this,'${visitId}')">📄 CR complet</button>
-        <button class="cr-tab" onclick="switchCRTabDetail('court',this,'${visitId}')">💬 Version courte</button>
-      </div>
-      <div class="cr-body" id="cr-detail-body">${visite.cr?.email||'—'}</div>
-      <div class="cr-actions">
-        <button class="btn btn-ghost" onclick="copierDetail('${visitId}')">📋 Copier</button>
-        <button class="btn btn-ghost" onclick="telechargerDetail('${visitId}')">⬇ Télécharger</button>
-        <button class="btn btn-danger" onclick="supprimerVisite('${visitId}','${bienId||visite.bienId||''}')" style="margin-left:auto">🗑 Supprimer</button>
-      </div>
-    </div>`;
-  showView('cr',null);
-  document.getElementById('topbar-title').textContent='CR — '+visite.visiteur;
+  document.getElementById('cr-back-btn').onclick=()=>{if(bienId)showFiche(bienId);else showView('visites',document.querySelectorAll('.nav-item')[2]);};
+  document.getElementById('cr-content').innerHTML=`<div style="background:white;border:1px solid var(--gris-light);border-radius:16px;padding:32px"><div style="font-size:11px;color:var(--or);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Compte-rendu</div><div style="font-family:'Clash Display',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px">${visite.visiteur}</div>${bien?`<div style="font-size:14px;color:var(--gris);margin-bottom:20px">${bien.adresse}</div>`:''}<div class="info-grid" style="margin-bottom:0"><div class="info-card"><div class="info-card-label">Date</div><div class="info-card-value">${formatDate(visite.date)}</div></div><div class="info-card"><div class="info-card-label">Budget</div><div class="info-card-value">${visite.budget||'—'}</div></div><div class="info-card"><div class="info-card-label">Intérêt</div><div class="info-card-value"><span class="interest-badge ${interestClass(visite.interest)}">${interestLabel(visite.interest)}</span></div></div>${visite.tel?`<div class="info-card"><div class="info-card-label">Téléphone</div><div class="info-card-value">${visite.tel}</div></div>`:''}${visite.email?`<div class="info-card"><div class="info-card-label">Email</div><div class="info-card-value">${visite.email}</div></div>`:''}${visite.typeRecherche?`<div class="info-card"><div class="info-card-label">Recherche</div><div class="info-card-value">${visite.typeRecherche}</div></div>`:''}</div></div><div class="cr-output"><div class="cr-tabs"><button class="cr-tab active" onclick="switchCRTabDetail('email',this,'${visitId}')">📧 Email vendeur</button><button class="cr-tab" onclick="switchCRTabDetail('pdf',this,'${visitId}')">📄 CR complet</button><button class="cr-tab" onclick="switchCRTabDetail('court',this,'${visitId}')">💬 Version courte</button></div><div class="cr-body" id="cr-detail-body">${visite.cr?.email||'—'}</div><div class="cr-actions"><button class="btn btn-ghost" onclick="copierDetail('${visitId}')">📋 Copier</button><button class="btn btn-ghost" onclick="telechargerDetail('${visitId}')">⬇ Télécharger</button><button class="btn btn-danger" onclick="supprimerVisite('${visitId}','${bienId||visite.bienId||''}')" style="margin-left:auto">🗑 Supprimer</button></div></div>`;
+  showView('cr',null);document.getElementById('topbar-title').textContent='CR — '+visite.visiteur;
 }
 
-function switchCRTabDetail(tab,btn,visitId) {
-  crDetailTab=tab;
-  document.querySelectorAll('#cr-content .cr-tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
-  const v=state.visites.find(v=>v.id===visitId);
-  document.getElementById('cr-detail-body').textContent=v?.cr?.[tab]||'—';
+function switchCRTabDetail(tab,btn,visitId){crDetailTab=tab;document.querySelectorAll('#cr-content .cr-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');const v=state.visites.find(v=>v.id===visitId);document.getElementById('cr-detail-body').textContent=v?.cr?.[tab]||'—';}
+function copierDetail(visitId){const v=state.visites.find(v=>v.id===visitId);navigator.clipboard.writeText(v?.cr?.[crDetailTab]||'').then(()=>showToast('✓ Copié !'));}
+function telechargerDetail(visitId){const v=state.visites.find(vi=>vi.id===visitId);const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([v?.cr?.pdf||v?.cr?.email||''],{type:'text/plain;charset=utf-8'}));a.download='CR-'+v.visiteur+'.txt';a.click();}
+async function supprimerVisite(visitId,bienId){if(!confirm('Supprimer ce compte-rendu ?'))return;await supa.from('visites').delete().eq('id',visitId);state.visites=state.visites.filter(v=>v.id!==visitId);showToast('Visite supprimée');if(bienId)showFiche(bienId);else showView('visites',document.querySelectorAll('.nav-item')[2]);}
+
+function renderDashboard(){
+  const now=new Date();const mois=state.visites.filter(v=>{const d=new Date(v.savedAt||v.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}).length;
+  document.getElementById('stat-biens').textContent=state.biens.length;document.getElementById('stat-visites').textContent=state.visites.length;document.getElementById('stat-contacts').textContent=getAllContacts().length;document.getElementById('stat-mois').textContent=mois;
+  const dv=document.getElementById('dashboard-visites');const rv=state.visites.slice(0,3);
+  dv.innerHTML=!rv.length?emptyState('📋','Aucune visite','Générez votre premier CR.'):'<div class="visite-list">'+rv.map(v=>{const bien=state.biens.find(b=>b.id===v.bienId);return`<div class="visite-card" onclick="showCR('${v.id}','${v.bienId||''}')"><div><div class="visite-visiteur">${v.visiteur}</div><div class="visite-meta"><span>${formatDate(v.date)}</span>${bien?'<span>'+bien.adresse+'</span>':''}</div></div><span class="interest-badge ${interestClass(v.interest)}">${interestLabel(v.interest)}</span></div>`;}).join('')+'</div>';
+  const db=document.getElementById('dashboard-biens');const rb=state.biens.slice(0,3);
+  db.innerHTML=!rb.length?emptyState('🏠','Aucun bien','Ajoutez votre premier bien.'):rb.map(b=>{const vc=state.visites.filter(v=>v.bienId===b.id).length;return`<div class="bien-card" onclick="showFiche('${b.id}')"><div class="bien-type-badge">${b.type}</div><div class="bien-adresse">${b.adresse}</div><div class="bien-details">${b.surface?b.surface+'m²':''} ${b.pieces?'· '+b.pieces+' pièces':''}</div><div class="bien-footer"><div class="bien-visits"><div class="visit-dot"></div>${vc} visite${vc>1?'s':''}</div><div class="bien-prix">${b.prix||'—'}</div></div></div>`;}).join('');
 }
 
-function copierDetail(visitId) {
-  const v=state.visites.find(v=>v.id===visitId);
-  navigator.clipboard.writeText(v?.cr?.[crDetailTab]||'').then(()=>showToast('✓ Copié !'));
-}
+function formatDate(d){if(!d)return'—';return new Date(d).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});}
+function interestClass(i){return i==='high'?'interest-high':i==='med'?'interest-med':'interest-low';}
+function interestLabel(i){return i==='high'?'🟢 Très intéressé':i==='med'?'🟡 Intéressé':'🔴 Peu intéressé';}
+function emptyState(icon,title,sub){return`<div class="empty-state"><div class="empty-icon">${icon}</div><div class="empty-title">${title}</div><div class="empty-sub">${sub}</div></div>`;}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
-function telechargerDetail(visitId) {
-  const v=state.visites.find(vi=>vi.id===visitId);
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([v?.cr?.pdf||v?.cr?.email||''],{type:'text/plain;charset=utf-8'}));
-  a.download='CR-'+v.visiteur+'.txt'; a.click();
-}
-
-async function supprimerVisite(visitId, bienId) {
-  if (!confirm('Supprimer ce compte-rendu ?')) return;
-  await supa.from('visites').delete().eq('id', visitId);
-  state.visites = state.visites.filter(v=>v.id!==visitId);
-  showToast('Visite supprimée');
-  if (bienId) showFiche(bienId);
-  else showView('visites',document.querySelectorAll('.nav-item')[2]);
-}
-
-// ── DASHBOARD ──
-function renderDashboard() {
-  const now = new Date();
-  const mois = state.visites.filter(v=>{ const d=new Date(v.savedAt||v.date); return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear(); }).length;
-  document.getElementById('stat-biens').textContent=state.biens.length;
-  document.getElementById('stat-visites').textContent=state.visites.length;
-  document.getElementById('stat-contacts').textContent=getAllContacts().length;
-  document.getElementById('stat-mois').textContent=mois;
-
-  const dv=document.getElementById('dashboard-visites');
-  const rv=state.visites.slice(0,3);
-  dv.innerHTML=!rv.length?emptyState('📋','Aucune visite','Générez votre premier CR.'):'<div class="visite-list">'+rv.map(v=>{
-    const bien=state.biens.find(b=>b.id===v.bienId);
-    return `<div class="visite-card" onclick="showCR('${v.id}','${v.bienId||''}')">
-      <div><div class="visite-visiteur">${v.visiteur}</div><div class="visite-meta"><span>${formatDate(v.date)}</span>${bien?'<span>'+bien.adresse+'</span>':''}</div></div>
-      <span class="interest-badge ${interestClass(v.interest)}">${interestLabel(v.interest)}</span>
-    </div>`;
-  }).join('')+'</div>';
-
-  const db=document.getElementById('dashboard-biens');
-  const rb=state.biens.slice(0,3);
-  db.innerHTML=!rb.length?emptyState('🏠','Aucun bien','Ajoutez votre premier bien.'):rb.map(b=>{
-    const vc=state.visites.filter(v=>v.bienId===b.id).length;
-    return `<div class="bien-card" onclick="showFiche('${b.id}')">
-      <div class="bien-type-badge">${b.type}</div><div class="bien-adresse">${b.adresse}</div>
-      <div class="bien-details">${b.surface?b.surface+'m²':''} ${b.pieces?'· '+b.pieces+' pièces':''}</div>
-      <div class="bien-footer"><div class="bien-visits"><div class="visit-dot"></div>${vc} visite${vc>1?'s':''}</div><div class="bien-prix">${b.prix||'—'}</div></div>
-    </div>`;
-  }).join('');
-}
-
-// ── HELPERS ──
-function formatDate(d) { if(!d) return '—'; return new Date(d).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}); }
-function interestClass(i) { return i==='high'?'interest-high':i==='med'?'interest-med':'interest-low'; }
-function interestLabel(i) { return i==='high'?'🟢 Très intéressé':i==='med'?'🟡 Intéressé':'🔴 Peu intéressé'; }
-function emptyState(icon,title,sub) { return `<div class="empty-state"><div class="empty-icon">${icon}</div><div class="empty-title">${title}</div><div class="empty-sub">${sub}</div></div>`; }
-function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
-
-document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('open'); }));
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
 
 init();
 </script>
