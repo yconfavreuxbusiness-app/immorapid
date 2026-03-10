@@ -832,17 +832,20 @@ textarea.form-input { resize:vertical; min-height:84px; }
         <button class="nav-item" onclick="showView('vendus',this)"><span class="icon">🏆</span>Biens vendus</button>
         <div class="nav-section-label">Actions</div>
         <button class="nav-item" onclick="openModalCR(null)"><span class="icon">✦</span>Générer un CR</button>
+        <div class="nav-section-label">Compte</div>
+        <button class="nav-item" onclick="openModalPassword()"><span class="icon">🔑</span>Changer mot de passe</button>
+        <button class="nav-item" onclick="signOut()" style="color:rgba(255,255,255,0.4);cursor:pointer;width:100%"><span class="icon">⎋</span>Déconnexion</button>
       </nav>
       <div class="sidebar-bottom">
         <div class="user-pill">
           <div class="user-avatar" id="user-avatar-initials">AG</div>
           <div class="user-info"><div class="user-name" id="user-name-display">—</div></div>
-          <button class="signout-btn" onclick="signOut()" title="Déconnexion">⎋</button>
+          <button class="signout-btn" onclick="signOut()" title="Déconnexion" style="color:rgba(255,255,255,0.35);font-size:13px">Quitter</button>
         </div>
         <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;padding:12px 4px 0">
-          <button onclick="showLegalModal('mentions')" style="background:none;border:none;font-size:11px;color:var(--gris-mid);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:color 0.15s;padding:0" onmouseover="this.style.color='var(--or)'" onmouseout="this.style.color='var(--gris-mid)'">Mentions</button>
-          <button onclick="showLegalModal('cgv')" style="background:none;border:none;font-size:11px;color:var(--gris-mid);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:color 0.15s;padding:0" onmouseover="this.style.color='var(--or)'" onmouseout="this.style.color='var(--gris-mid)'">CGV</button>
-          <button onclick="showLegalModal('confidentialite')" style="background:none;border:none;font-size:11px;color:var(--gris-mid);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:color 0.15s;padding:0" onmouseover="this.style.color='var(--or)'" onmouseout="this.style.color='var(--gris-mid)'">RGPD</button>
+          <button onclick="showLegalModal('mentions')" style="background:none;border:none;font-size:11px;color:rgba(255,255,255,0.3);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:color 0.15s;padding:0" onmouseover="this.style.color='var(--or)'" onmouseout="this.style.color='var(--gris-mid)'">Mentions</button>
+          <button onclick="showLegalModal('cgv')" style="background:none;border:none;font-size:11px;color:rgba(255,255,255,0.3);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:color 0.15s;padding:0" onmouseover="this.style.color='var(--or)'" onmouseout="this.style.color='var(--gris-mid)'">CGV</button>
+          <button onclick="showLegalModal('confidentialite')" style="background:none;border:none;font-size:11px;color:rgba(255,255,255,0.3);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:color 0.15s;padding:0" onmouseover="this.style.color='var(--or)'" onmouseout="this.style.color='var(--gris-mid)'">RGPD</button>
         </div>
       </div>
     </aside>
@@ -941,6 +944,31 @@ textarea.form-input { resize:vertical; min-height:84px; }
 
 <!-- COPY SUCCESS FEEDBACK -->
 <div class="copy-success" id="copy-success">✓ Copié dans le presse-papiers</div>
+
+<!-- ══════════════════════════════════════
+     MODAL — CHANGER MOT DE PASSE
+══════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-password">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <div class="modal-title">Changer le mot de passe</div>
+      <button class="modal-close" onclick="closeModal('modal-password')">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nouveau mot de passe <span class="req">*</span></label>
+      <input class="form-input" id="pwd-new" type="password" placeholder="Minimum 6 caractères">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Confirmer le mot de passe <span class="req">*</span></label>
+      <input class="form-input" id="pwd-confirm" type="password" placeholder="Répétez le mot de passe">
+    </div>
+    <div id="pwd-error" style="font-size:13px;color:var(--danger);min-height:18px;margin-bottom:8px"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-password')">Annuler</button>
+      <button class="btn btn-red" onclick="savePassword()">Enregistrer</button>
+    </div>
+  </div>
+</div>
 
 <!-- ══════════════════════════════════════
      MODALS
@@ -1349,7 +1377,7 @@ function showApp() {
   document.body.style.overflow = 'hidden';
   document.getElementById('screen-landing').style.display = 'none';
   document.getElementById('screen-auth').style.display = 'none';
-  document.getElementById('screen-app').style.display = 'block';
+  document.getElementById('screen-app').style.display = 'flex';
   const email = currentUser.email;
   const name = email.split('@')[0];
   document.getElementById('user-name-display').textContent = email;
@@ -1419,7 +1447,37 @@ async function signUp() {
   if(error) err.textContent = error.message;
   else{err.style.color='var(--or)';err.textContent='Compte créé ! Vérifiez votre email pour confirmer.';}
 }
-async function signOut() { await supa.auth.signOut(); showLanding(); }
+async function signOut() {
+  try {
+    await supa.auth.signOut();
+  } catch(e) {}
+  // Reset state
+  state = { user:null, biens:[], visites:[], contacts:[] };
+  // Hide app, show landing
+  document.getElementById('screen-app').style.display = 'none';
+  document.getElementById('screen-auth').style.display = 'none';
+  showLanding();
+}
+
+// ── MOT DE PASSE ──
+function openModalPassword() {
+  document.getElementById('pwd-new').value = '';
+  document.getElementById('pwd-confirm').value = '';
+  document.getElementById('pwd-error').textContent = '';
+  openModal('modal-password');
+}
+async function savePassword() {
+  const pwd = document.getElementById('pwd-new').value;
+  const confirm = document.getElementById('pwd-confirm').value;
+  const err = document.getElementById('pwd-error');
+  if(!pwd || pwd.length < 6) { err.textContent = 'Minimum 6 caractères.'; return; }
+  if(pwd !== confirm) { err.textContent = 'Les mots de passe ne correspondent pas.'; return; }
+  err.textContent = '';
+  const { error } = await supa.auth.updateUser({ password: pwd });
+  if(error) { err.textContent = 'Erreur : ' + error.message; return; }
+  closeModal('modal-password');
+  showToast('✓ Mot de passe modifié');
+}
 
 // ── ONBOARDING ──
 let obStep = 1;
