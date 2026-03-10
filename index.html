@@ -284,6 +284,26 @@ textarea.form-input { resize:vertical; min-height:90px; }
 ::-webkit-scrollbar-thumb { background:var(--gris-light); border-radius:10px; }
 
 /* ═══════════════════════════════════════
+   SEARCH
+═══════════════════════════════════════ */
+.topbar-search { position:relative; flex:1; max-width:280px; margin:0 16px; }
+.topbar-search .search-icon { position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:13px; pointer-events:none; }
+.topbar-search input { width:100%; padding:8px 12px 8px 32px; background:var(--blanc); border:1px solid var(--gris-light); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:13px; color:var(--noir); outline:none; transition:border-color 0.15s; }
+.topbar-search input:focus { border-color:var(--or); background:white; }
+.search-results { position:absolute; top:calc(100% + 6px); left:0; right:0; background:white; border:1px solid var(--gris-light); border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.12); z-index:500; max-height:320px; overflow-y:auto; display:none; }
+.search-results.open { display:block; }
+.search-result-item { display:flex; align-items:center; gap:12px; padding:12px 16px; cursor:pointer; transition:background 0.1s; border-bottom:1px solid var(--gris-light); }
+.search-result-item:last-child { border-bottom:none; }
+.search-result-item:hover { background:var(--blanc); }
+.search-result-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+.sri-bien { background:var(--or-light); }
+.sri-contact { background:#e8f5e9; }
+.sri-visite { background:#e3f2fd; }
+.search-result-name { font-size:13px; font-weight:500; }
+.search-result-sub { font-size:11px; color:var(--gris); margin-top:1px; }
+.search-empty { padding:20px; text-align:center; font-size:13px; color:var(--gris); }
+
+/* ═══════════════════════════════════════
    MOBILE
 ═══════════════════════════════════════ */
 .hamburger { display:none; background:none; border:none; cursor:pointer; padding:8px; flex-direction:column; gap:5px; }
@@ -316,6 +336,7 @@ textarea.form-input { resize:vertical; min-height:90px; }
 
   /* Topbar */
   .topbar { padding:0 16px; gap:8px; }
+  .topbar-search { display:none; }
   .topbar-title { font-size:15px; }
   #topbar-actions .btn { padding:7px 12px; font-size:12px; }
 
@@ -445,7 +466,16 @@ textarea.form-input { resize:vertical; min-height:90px; }
     <input class="auth-input" id="auth-password" type="password" placeholder="Mot de passe" onkeydown="if(event.key==='Enter')authAction()">
     <button class="auth-btn-main" onclick="authAction()" id="auth-btn">Se connecter</button>
     <div class="auth-error" id="auth-error"></div>
+    <button class="auth-back" onclick="showForgot()" id="forgot-link" style="margin-top:4px">Mot de passe oublié ?</button>
     <button class="auth-back" onclick="showLanding()">← Retour à l'accueil</button>
+  </div>
+  <div class="auth-card" id="forgot-card" style="display:none">
+    <div class="auth-logo">Immo<span>Rapid</span></div>
+    <div class="auth-sub">Réinitialiser votre mot de passe</div>
+    <input class="auth-input" id="forgot-email" type="email" placeholder="votre@email.com">
+    <button class="auth-btn-main" onclick="sendReset()">Envoyer le lien</button>
+    <div class="auth-error" id="forgot-msg"></div>
+    <button class="auth-back" onclick="showLoginCard()">← Retour à la connexion</button>
   </div>
 </div>
 
@@ -485,6 +515,11 @@ textarea.form-input { resize:vertical; min-height:90px; }
           <span></span><span></span><span></span>
         </button>
         <div class="topbar-title" id="topbar-title">Tableau de bord</div>
+        <div class="topbar-search">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="global-search" placeholder="Rechercher..." oninput="globalSearch(this.value)" onfocus="showSearchResults()" autocomplete="off">
+          <div class="search-results" id="search-results"></div>
+        </div>
         <div id="topbar-actions"></div>
       </div>
       <div class="content">
@@ -694,6 +729,10 @@ textarea.form-input { resize:vertical; min-height:90px; }
       <label class="form-label">Notes</label>
       <textarea class="form-input" id="mc2-notes" placeholder="Notes libres..."></textarea>
     </div>
+    <div class="form-group">
+      <label class="form-label">📅 Rappel</label>
+      <input class="form-input" id="mc2-rappel" type="date">
+    </div>
     <div class="modal-footer">
       <button class="btn btn-danger" onclick="supprimerContact(document.getElementById('mc2-id').value)" style="margin-right:auto">🗑 Supprimer</button>
       <button class="btn btn-ghost" onclick="closeModal('modal-modifier-contact')">Annuler</button>
@@ -775,6 +814,16 @@ textarea.form-input { resize:vertical; min-height:90px; }
         <label class="form-label">Impressions <span class="req">*</span></label>
         <textarea class="form-input" id="cr-impressions" style="min-height:100px" placeholder="Ex: Couple 35 ans, attirés par la luminosité, inquiets du bruit de la rue..."></textarea>
       </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">📝 Notes internes <span style="font-weight:400;color:var(--gris)">(non envoyées)</span></label>
+          <textarea class="form-input" id="cr-notes" style="min-height:60px" placeholder="Notes privées, à ne pas partager..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">📅 Rappel</label>
+          <input class="form-input" id="cr-rappel" type="date">
+        </div>
+      </div>
       <div class="modal-footer" style="margin-top:0">
         <button class="btn btn-ghost" onclick="closeModal('modal-cr')">Annuler</button>
         <button class="btn btn-primary" onclick="genererCR()">✦ Générer le CR</button>
@@ -853,6 +902,10 @@ textarea.form-input { resize:vertical; min-height:90px; }
     <div class="form-group">
       <label class="form-label">Notes</label>
       <textarea class="form-input" id="mc-notes" placeholder="Notes libres..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">📅 Rappel</label>
+      <input class="form-input" id="mc-rappel" type="date">
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-contact')">Annuler</button>
@@ -962,6 +1015,80 @@ async function signUp() {
 }
 async function signOut() { await supa.auth.signOut(); showLanding(); }
 
+// ── MOT DE PASSE OUBLIÉ ──
+function showForgot() {
+  document.querySelector('.auth-card').style.display = 'none';
+  document.getElementById('forgot-card').style.display = 'block';
+  document.getElementById('forgot-msg').textContent = '';
+}
+function showLoginCard() {
+  document.querySelector('.auth-card').style.display = 'block';
+  document.getElementById('forgot-card').style.display = 'none';
+}
+async function sendReset() {
+  const email = document.getElementById('forgot-email').value.trim();
+  const msg = document.getElementById('forgot-msg');
+  msg.style.color = 'var(--danger)';
+  if(!email){ msg.textContent = 'Entrez votre email.'; return; }
+  const {error} = await supa.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin
+  });
+  if(error){ msg.textContent = error.message; return; }
+  msg.style.color = 'var(--or)';
+  msg.textContent = 'Lien envoyé ! Vérifiez votre boîte mail.';
+}
+
+// ── RECHERCHE GLOBALE ──
+function globalSearch(query) {
+  const results = document.getElementById('search-results');
+  if(!query || query.length < 2) { results.classList.remove('open'); return; }
+  const q = query.toLowerCase();
+  const biens = state.biens.filter(b=>b.adresse?.toLowerCase().includes(q)||b.vendeur?.toLowerCase().includes(q)).slice(0,3);
+  const contacts = state.contacts.filter(c=>c.nom?.toLowerCase().includes(q)||c.tel?.includes(q)||c.email?.toLowerCase().includes(q)).slice(0,3);
+  const visites = state.visites.filter(v=>v.visiteur?.toLowerCase().includes(q)||v.impressions?.toLowerCase().includes(q)).slice(0,3);
+  if(!biens.length && !contacts.length && !visites.length) {
+    results.innerHTML = '<div class="search-empty">Aucun résultat</div>';
+    results.classList.add('open'); return;
+  }
+  let html = '';
+  biens.forEach(b=>{ html+=`<div class="search-result-item" onclick="searchGoTo('bien','${b.id}')"><div class="search-result-icon sri-bien">🏠</div><div><div class="search-result-name">${b.adresse}</div><div class="search-result-sub">${b.type} · ${b.prix||'—'}</div></div></div>`; });
+  contacts.forEach(c=>{ html+=`<div class="search-result-item" onclick="searchGoTo('contact','${c.id}')"><div class="search-result-icon sri-contact">${c.role==='acheteur'?'👤':'🏡'}</div><div><div class="search-result-name">${c.nom}</div><div class="search-result-sub">${c.role==='acheteur'?'Acheteur':'Vendeur'}${c.tel?' · '+c.tel:''}</div></div></div>`; });
+  visites.forEach(v=>{ const b=state.biens.find(b=>b.id===v.bienId); html+=`<div class="search-result-item" onclick="searchGoTo('visite','${v.id}','${v.bienId||''}')"><div class="search-result-icon sri-visite">📋</div><div><div class="search-result-name">${v.visiteur}</div><div class="search-result-sub">${b?b.adresse:'Bien non rattaché'} · ${formatDate(v.date)}</div></div></div>`; });
+  results.innerHTML = html;
+  results.classList.add('open');
+}
+function showSearchResults() {
+  const q = document.getElementById('global-search').value;
+  if(q && q.length >= 2) globalSearch(q);
+}
+function searchGoTo(type, id, extraId='') {
+  document.getElementById('search-results').classList.remove('open');
+  document.getElementById('global-search').value = '';
+  if(type==='bien') showFiche(id);
+  else if(type==='contact') showContactDetail(id);
+  else if(type==='visite') showCR(id, extraId);
+}
+document.addEventListener('click', e=>{ if(!e.target.closest('.topbar-search')) document.getElementById('search-results')?.classList.remove('open'); });
+
+// ── EXPORT CSV ──
+function exportCSV() {
+  const contacts = state.contacts;
+  if(!contacts.length){ showToast('Aucun contact à exporter'); return; }
+  const headers = ['Nom','Rôle','Téléphone','Email','Âge','Budget','Type recherché','Secteur','Délai','Notes'];
+  const rows = contacts.map(c=>[
+    c.nom, c.role, c.tel, c.email, c.age, c.budget, c.typeRecherche, c.secteur,
+    c.delai ? ({urgent:'Urgent',court:'Court terme',moyen:'Moyen terme',long:'Long terme',flou:'Pas décidé'}[c.delai]||'') : '',
+    c.notes
+  ].map(v=>`"${(v||'').replace(/"/g,'""')}"`).join(','));
+  const csv = [headers.join(','), ...rows].join('
+');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8'}));
+  a.download = 'contacts-immorapid.csv';
+  a.click();
+  showToast('✓ Export téléchargé');
+}
+
 // ── INIT ──
 function toggleSidebar() {
   document.querySelector('.sidebar').classList.toggle('open');
@@ -997,8 +1124,8 @@ async function loadAll() {
   state.historique = (h.data||[]);
 }
 function dbToBien(r){ return {id:r.id,type:r.type,adresse:r.adresse,prix:r.prix,surface:r.surface,pieces:r.pieces,vendeur:r.vendeur,vendeurTel:r.vendeur_tel,vendeurEmail:r.vendeur_email,notes:r.notes,statut:r.statut||'actif',createdAt:r.created_at}; }
-function dbToVisite(r){ return {id:r.id,bienId:r.bien_id,visiteur:r.visiteur,tel:r.tel,email:r.email,age:r.age,budget:r.budget,typeRecherche:r.type_recherche,secteur:r.secteur,date:r.date,interest:r.interest,delai:r.delai||'',impressions:r.impressions,cr:{email:r.cr_email,pdf:r.cr_pdf,court:r.cr_court},savedAt:r.saved_at}; }
-function dbToContact(r){ return {id:r.id,auto:false,role:r.role,nom:r.nom,tel:r.tel,email:r.email,age:r.age,budget:r.budget,typeRecherche:r.type_recherche,secteur:r.secteur,delai:r.delai||'',notes:r.notes,createdAt:r.created_at}; }
+function dbToVisite(r){ return {id:r.id,bienId:r.bien_id,visiteur:r.visiteur,tel:r.tel,email:r.email,age:r.age,budget:r.budget,typeRecherche:r.type_recherche,secteur:r.secteur,date:r.date,interest:r.interest,delai:r.delai||'',impressions:r.impressions,notes:r.notes||'',rappel:r.rappel||'',cr:{email:r.cr_email,pdf:r.cr_pdf,court:r.cr_court},savedAt:r.saved_at}; }
+function dbToContact(r){ return {id:r.id,auto:false,role:r.role,nom:r.nom,tel:r.tel,email:r.email,age:r.age,budget:r.budget,typeRecherche:r.type_recherche,secteur:r.secteur,delai:r.delai||'',notes:r.notes,rappel:r.rappel||'',createdAt:r.created_at}; }
 
 function getAllContacts(){
   return state.contacts;
@@ -1036,7 +1163,7 @@ function showView(name, btn){
   if(name==='dashboard') renderDashboard();
   if(name==='biens'){ renderBiens(); addBtn(actions,'+ Nouveau bien',openModalBien,'btn-primary'); }
   if(name==='visites') renderVisites();
-  if(name==='contacts'){ renderContacts(); addBtn(actions,'+ Nouveau contact',openModalContact,'btn-primary'); }
+  if(name==='contacts'){ renderContacts(); addBtn(actions,'⬇ Exporter CSV',exportCSV,'btn-ghost'); addBtn(actions,'+ Nouveau contact',openModalContact,'btn-primary'); }
   if(name==='vendus'){ renderVendus(); }
 }
 function addBtn(c,l,fn,cls){ const b=document.createElement('button'); b.className='btn '+cls; b.textContent=l; b.onclick=fn; c.appendChild(b); }
@@ -1073,6 +1200,7 @@ function openModalModifierContact(contactId) {
   document.getElementById('mc2-secteur').value = c.secteur||'';
   document.getElementById('mc2-delai').value = c.delai||'';
   document.getElementById('mc2-notes').value = c.notes||'';
+  document.getElementById('mc2-rappel').value = c.rappel||'';
   updateDelaiLabel2(c.role||'acheteur');
   openModal('modal-modifier-contact');
 }
@@ -1092,7 +1220,8 @@ async function sauvegarderContact() {
     type_recherche: document.getElementById('mc2-type').value,
     secteur: document.getElementById('mc2-secteur').value.trim(),
     delai: document.getElementById('mc2-delai').value,
-    notes: document.getElementById('mc2-notes').value.trim()
+    notes: document.getElementById('mc2-notes').value.trim(),
+    rappel: document.getElementById('mc2-rappel').value || null
   };
   const {error} = await supa.from('contacts').update(updates).eq('id', contactId);
   if(error){ showToast('Erreur : '+error.message); return; }
@@ -1243,7 +1372,8 @@ async function saveContact(){
     type_recherche: document.getElementById('mc-type').value,
     secteur: document.getElementById('mc-secteur').value.trim(),
     delai: document.getElementById('mc-delai').value,
-    notes: document.getElementById('mc-notes').value.trim()
+    notes: document.getElementById('mc-notes').value.trim(),
+    rappel: document.getElementById('mc-rappel').value || null
   };
   const {data,error} = await supa.from('contacts').insert(contact).select().single();
   if(error){ showToast('Erreur : '+error.message); return; }
@@ -1263,6 +1393,8 @@ function openModalCR(bienId){
   document.getElementById('cr-type-recherche').value = '';
   document.getElementById('cr-interest').value = 'high';
   document.getElementById('cr-delai').value = '';
+  document.getElementById('cr-notes').value = '';
+  document.getElementById('cr-rappel').value = '';
   generatedCR = {};
   const sel = document.getElementById('cr-bien-select');
   sel.innerHTML = '<option value="">— Aucun bien sélectionné —</option>';
@@ -1303,7 +1435,9 @@ async function genererCR(){
     date: document.getElementById('cr-date').value,
     interest: document.getElementById('cr-interest').value,
     delai: document.getElementById('cr-delai').value,
-    impressions: document.getElementById('cr-impressions').value.trim()
+    impressions: document.getElementById('cr-impressions').value.trim(),
+    notes: document.getElementById('cr-notes').value.trim(),
+    rappel: document.getElementById('cr-rappel').value || null
   };
   document.getElementById('cr-form-section').style.display = 'none';
   document.getElementById('cr-output-section').style.display = 'block';
@@ -1341,6 +1475,7 @@ async function sauvegarderCR(){
     age: pendingCR.age, budget: pendingCR.budget, type_recherche: pendingCR.typeRecherche,
     secteur: pendingCR.secteur, date: pendingCR.date, interest: pendingCR.interest,
     delai: pendingCR.delai||null, impressions: pendingCR.impressions,
+    notes: pendingCR.notes||'', rappel: pendingCR.rappel||null,
     cr_email: generatedCR.email||'', cr_pdf: generatedCR.pdf||'', cr_court: generatedCR.court||''
   };
   const {data,error} = await supa.from('visites').insert(visite).select().single();
@@ -1499,6 +1634,7 @@ function showContactDetail(contactId){
       ${contact.typeRecherche?`<div class="info-card"><div class="info-card-label">Type recherché</div><div class="info-card-value">${contact.typeRecherche}</div></div>`:''}
       ${contact.secteur?`<div class="info-card"><div class="info-card-label">Secteur</div><div class="info-card-value">${contact.secteur}</div></div>`:''}
       ${contact.delai?`<div class="info-card"><div class="info-card-label">${contact.role==='vendeur'?'Délai de vente':"Délai d'achat"}</div><div class="info-card-value">${DELAI_LABELS[contact.delai]||''}</div></div>`:''}
+      ${contact.rappel?`<div class="info-card" style="border-color:rgba(201,169,110,0.4);background:rgba(201,169,110,0.05)"><div class="info-card-label">📅 Rappel</div><div class="info-card-value" style="color:var(--or)">${formatDate(contact.rappel)}</div></div>`:''}
     </div>`;
   if(contact.role==='acheteur'&&matching.length) html+=`
     <div class="matching-section">
@@ -1564,6 +1700,8 @@ function showCR(visitId, bienId){
         ${visite.delai?`<div class="info-card"><div class="info-card-label">Délai</div><div class="info-card-value">${DELAI_LABELS[visite.delai]}</div></div>`:''}
         ${visite.tel?`<div class="info-card"><div class="info-card-label">Téléphone</div><div class="info-card-value">${visite.tel}</div></div>`:''}
         ${visite.email?`<div class="info-card"><div class="info-card-label">Email</div><div class="info-card-value">${visite.email}</div></div>`:''}
+        ${visite.rappel?`<div class="info-card" style="border-color:rgba(201,169,110,0.4);background:rgba(201,169,110,0.05)"><div class="info-card-label">📅 Rappel</div><div class="info-card-value" style="color:var(--or)">${formatDate(visite.rappel)}</div></div>`:''}
+        ${visite.notes?`<div class="info-card" style="grid-column:1/-1"><div class="info-card-label">📝 Notes internes</div><div class="info-card-value" style="font-size:13px;color:var(--gris)">${visite.notes}</div></div>`:''}
       </div>
     </div>
     <div class="cr-output">
