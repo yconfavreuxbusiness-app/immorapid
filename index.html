@@ -13,14 +13,17 @@
   --danger:#e05555; --success:#4caf50;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-html{height:100%;}
-body{font-family:'DM Sans',sans-serif;background:var(--blanc);color:var(--noir);min-height:100%;}
-#app{height:100vh;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;background:var(--blanc);color:var(--noir);}
 
-/* ── LANDING ── */
+/* ── SCREENS ── */
 #landing { display:none; }
 
-nav {
+#app { display:none; height:100vh; overflow:hidden; }
+.app-open { overflow:hidden; }
+#auth-screen { position:fixed; inset:0; z-index:1000; background:var(--noir); display:none; align-items:center; justify-content:center; }
+
+/* ── LANDING NAV ── */
+#landing nav {
   position:fixed; top:0; left:0; right:0; z-index:100;
   display:flex; align-items:center; justify-content:space-between;
   padding:20px 60px;
@@ -92,7 +95,7 @@ h1 em { font-family:'Instrument Serif',serif; font-style:italic; font-weight:400
 land-footer { background:var(--noir); color:rgba(248,245,240,0.4); padding:48px 60px; display:flex; justify-content:space-between; align-items:center; }
 
 /* ── AUTH ── */
-#auth-screen { position:fixed; inset:0; z-index:1000; background:var(--noir); display:none; align-items:center; justify-content:center; }
+
 .auth-card { background:white; border-radius:24px; padding:48px; width:100%; max-width:420px; box-shadow:0 40px 80px rgba(0,0,0,0.4); }
 .auth-logo { font-family:'Clash Display',sans-serif; font-size:28px; font-weight:700; margin-bottom:8px; }
 .auth-logo span { color:var(--or); }
@@ -110,7 +113,7 @@ land-footer { background:var(--noir); color:rgba(248,245,240,0.4); padding:48px 
 
 /* ── APP ── */
 #app { display:none; height:100vh; }
-.layout { display:flex; height:100vh; overflow:hidden; }
+.layout { display:flex; width:100%; height:100vh; overflow:hidden; }
 
 /* LAUNCH BANNER IN APP */
 .app-banner { background:linear-gradient(90deg,rgba(201,169,110,0.12),rgba(201,169,110,0.06)); border-bottom:1px solid rgba(201,169,110,0.2); padding:9px 36px; font-size:13px; color:#9a7a4a; font-weight:500; display:flex; align-items:center; gap:8px; }
@@ -560,18 +563,21 @@ let authMode = 'login';
 
 // ── SCREENS ──
 function showLanding() {
+  document.body.style.overflow='';
   document.getElementById('landing').style.display='block';
   document.getElementById('auth-screen').style.display='none';
   document.getElementById('app').style.display='none';
 }
 
 function showAuth() {
+  document.body.style.overflow='hidden';
   document.getElementById('landing').style.display='none';
   document.getElementById('auth-screen').style.display='flex';
   document.getElementById('app').style.display='none';
 }
 
 function showApp() {
+  document.body.style.overflow='hidden';
   document.getElementById('landing').style.display='none';
   document.getElementById('auth-screen').style.display='none';
   document.getElementById('app').style.display='block';
