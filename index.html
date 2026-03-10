@@ -641,6 +641,67 @@ textarea.form-input { resize:vertical; min-height:90px; }
   </div>
 </div>
 
+<!-- Modal Modifier Contact -->
+<div class="modal-overlay" id="modal-modifier-contact">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Modifier le contact</div><button class="modal-close" onclick="closeModal('modal-modifier-contact')">✕</button></div>
+    <input type="hidden" id="mc2-id">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Nom <span class="req">*</span></label>
+        <input class="form-input" id="mc2-nom" placeholder="M. et Mme Dupont">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Rôle</label>
+        <select class="form-input" id="mc2-role" onchange="updateDelaiLabel2(this.value)"><option value="acheteur">Acheteur</option><option value="vendeur">Vendeur</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Téléphone <span class="req">*</span></label>
+        <input class="form-input" id="mc2-tel" placeholder="06 12 34 56 78" oninput="formatTel(this)">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email <span class="req">*</span></label>
+        <input class="form-input" id="mc2-email" type="email" placeholder="email@exemple.com">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Âge</label>
+        <input class="form-input" id="mc2-age" placeholder="35 ans">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Budget</label>
+        <div class="form-input-wrap"><span class="prefix">€</span><input class="form-input" id="mc2-budget" placeholder="350 000" oninput="formatPrix(this)"></div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Type recherché</label>
+        <select class="form-input" id="mc2-type"><option value="">— Non précisé —</option><option>Appartement</option><option>Maison</option><option>Studio</option><option>Loft</option><option>Villa</option></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Secteur</label>
+        <input class="form-input" id="mc2-secteur" placeholder="Paris 11e...">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="mc2-delai-label">Délai d'achat</label>
+      <select class="form-input" id="mc2-delai"><option value="">— Non précisé —</option><option value="urgent">🔥 Urgent (&lt; 1 mois)</option><option value="court">⚡ Court terme (1-3 mois)</option><option value="moyen">📅 Moyen terme (3-6 mois)</option><option value="long">🕐 Long terme (6 mois+)</option><option value="flou">🤷 Pas encore décidé</option></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-input" id="mc2-notes" placeholder="Notes libres..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" onclick="supprimerContact(document.getElementById('mc2-id').value)" style="margin-right:auto">🗑 Supprimer</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-modifier-contact')">Annuler</button>
+      <button class="btn btn-primary" onclick="sauvegarderContact()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal CR -->
 <div class="modal-overlay" id="modal-cr">
   <div class="modal" style="max-width:640px">
@@ -940,16 +1001,7 @@ function dbToVisite(r){ return {id:r.id,bienId:r.bien_id,visiteur:r.visiteur,tel
 function dbToContact(r){ return {id:r.id,auto:false,role:r.role,nom:r.nom,tel:r.tel,email:r.email,age:r.age,budget:r.budget,typeRecherche:r.type_recherche,secteur:r.secteur,delai:r.delai||'',notes:r.notes,createdAt:r.created_at}; }
 
 function getAllContacts(){
-  const all = [...state.contacts];
-  state.biens.forEach(b=>{
-    if(b.vendeur && !all.find(c=>c.sourceId===b.id&&c.role==='vendeur'))
-      all.push({id:'v_'+b.id,sourceId:b.id,role:'vendeur',nom:b.vendeur,tel:b.vendeurTel||'',email:b.vendeurEmail||'',age:'',budget:'',typeRecherche:'',secteur:'',delai:'',notes:'',auto:true});
-  });
-  state.visites.forEach(v=>{
-    if(v.visiteur && !all.find(c=>c.nom===v.visiteur&&c.role==='acheteur'))
-      all.push({id:'a_'+v.id,sourceId:v.id,role:'acheteur',nom:v.visiteur,tel:v.tel||'',email:v.email||'',age:v.age||'',budget:v.budget||'',typeRecherche:v.typeRecherche||'',secteur:v.secteur||'',delai:v.delai||'',notes:'',auto:true});
-  });
-  return all;
+  return state.contacts;
 }
 function getContactVisites(c){ return state.visites.filter(v=>v.visiteur===c.nom||v.id===c.sourceId); }
 function getContactBiens(c){ return state.biens.filter(b=>b.id===c.sourceId||b.vendeur===c.nom); }
@@ -1003,6 +1055,63 @@ function openModalContact(){
   updateDelaiLabel('acheteur');
   openModal('modal-contact');
 }
+function updateDelaiLabel2(role){
+  const label = document.getElementById('mc2-delai-label');
+  if(label) label.textContent = role==='vendeur' ? "Délai de vente" : "Délai d'achat";
+}
+
+function openModalModifierContact(contactId) {
+  const c = state.contacts.find(c=>c.id===contactId); if(!c) return;
+  document.getElementById('mc2-id').value = contactId;
+  document.getElementById('mc2-nom').value = c.nom||'';
+  document.getElementById('mc2-role').value = c.role||'acheteur';
+  document.getElementById('mc2-tel').value = c.tel||'';
+  document.getElementById('mc2-email').value = c.email||'';
+  document.getElementById('mc2-age').value = c.age||'';
+  document.getElementById('mc2-budget').value = c.budget ? c.budget.replace(' €','').replace(/\s/g,'') : '';
+  document.getElementById('mc2-type').value = c.typeRecherche||'';
+  document.getElementById('mc2-secteur').value = c.secteur||'';
+  document.getElementById('mc2-delai').value = c.delai||'';
+  document.getElementById('mc2-notes').value = c.notes||'';
+  updateDelaiLabel2(c.role||'acheteur');
+  openModal('modal-modifier-contact');
+}
+
+async function sauvegarderContact() {
+  const contactId = document.getElementById('mc2-id').value;
+  const ok = validateRequired([{id:'mc2-nom'},{id:'mc2-tel'},{id:'mc2-email'}]);
+  if(!ok){ showToast('Remplissez les champs obligatoires (*)'); return; }
+  const budgetRaw = getPrixRaw('mc2-budget');
+  const updates = {
+    nom: document.getElementById('mc2-nom').value.trim(),
+    role: document.getElementById('mc2-role').value,
+    tel: document.getElementById('mc2-tel').value.trim(),
+    email: document.getElementById('mc2-email').value.trim(),
+    age: document.getElementById('mc2-age').value.trim(),
+    budget: budgetRaw ? budgetRaw.toLocaleString('fr-FR')+' €' : '',
+    type_recherche: document.getElementById('mc2-type').value,
+    secteur: document.getElementById('mc2-secteur').value.trim(),
+    delai: document.getElementById('mc2-delai').value,
+    notes: document.getElementById('mc2-notes').value.trim()
+  };
+  const {error} = await supa.from('contacts').update(updates).eq('id', contactId);
+  if(error){ showToast('Erreur : '+error.message); return; }
+  const idx = state.contacts.findIndex(c=>c.id===contactId);
+  if(idx>=0) state.contacts[idx] = {...state.contacts[idx], ...updates, typeRecherche:updates.type_recherche};
+  closeModal('modal-modifier-contact');
+  showToast('✓ Contact modifié');
+  showContactDetail(contactId);
+}
+
+async function supprimerContact(contactId) {
+  if(!confirm('Supprimer ce contact ?')) return;
+  await supa.from('contacts').delete().eq('id', contactId);
+  state.contacts = state.contacts.filter(c=>c.id!==contactId);
+  closeModal('modal-modifier-contact');
+  showToast('Contact supprimé');
+  showView('contacts', document.querySelectorAll('.nav-item')[3]);
+}
+
 function updateDelaiLabel(role){
   const label = document.getElementById('mc-delai-label');
   if(label) label.textContent = role==='vendeur' ? "Délai de vente" : "Délai d'achat";
@@ -1075,6 +1184,23 @@ async function modifierBien() {
   showFiche(bienId);
 }
 
+// ── AUTO CREATE CONTACT ──
+async function autoCreateContact(role, nom, tel, email, extraFields={}) {
+  if(!nom) return;
+  // Check if contact already exists in real contacts
+  const exists = state.contacts.find(c=>c.nom===nom && c.role===role);
+  if(exists) return;
+  const contact = {
+    user_id: currentUser.id, role, nom,
+    tel: tel||'', email: email||'',
+    age: extraFields.age||'', budget: extraFields.budget||'',
+    type_recherche: extraFields.typeRecherche||'',
+    secteur: extraFields.secteur||'', delai: extraFields.delai||'', notes:''
+  };
+  const {data, error} = await supa.from('contacts').insert(contact).select().single();
+  if(!error && data) state.contacts.unshift(dbToContact(data));
+}
+
 // ── SAVE BIEN ──
 async function saveBien(){
   const ok = validateRequired([{id:'bien-adresse'},{id:'bien-vendeur'},{id:'bien-vendeur-tel'}]);
@@ -1095,6 +1221,7 @@ async function saveBien(){
   const {data,error} = await supa.from('biens').insert(bien).select().single();
   if(error){ showToast('Erreur : '+error.message); return; }
   state.biens.unshift(dbToBien(data));
+  await autoCreateContact('vendeur', bien.vendeur, bien.vendeur_tel, bien.vendeur_email);
   closeModal('modal-bien');
   showToast('✓ Bien ajouté');
   renderBiens();
@@ -1219,6 +1346,10 @@ async function sauvegarderCR(){
   const {data,error} = await supa.from('visites').insert(visite).select().single();
   if(error){ showToast('Erreur : '+error.message); return; }
   state.visites.unshift(dbToVisite(data));
+  await autoCreateContact('acheteur', pendingCR.visiteur, pendingCR.tel, pendingCR.email, {
+    age: pendingCR.age, budget: pendingCR.budget,
+    typeRecherche: pendingCR.typeRecherche, secteur: pendingCR.secteur, delai: pendingCR.delai
+  });
   closeModal('modal-cr');
   showToast('✓ CR sauvegardé');
   if(currentBienId||pendingCR.bienId) showFiche(currentBienId||pendingCR.bienId);
@@ -1300,6 +1431,7 @@ function showFiche(bienId){
   document.getElementById('topbar-title').textContent = bien.adresse;
   const actions = document.getElementById('topbar-actions'); actions.innerHTML='';
   addBtn(actions,'✏ Modifier',()=>openModalModifier(bienId),'btn-ghost');
+  addBtn(actions,'🗑 Supprimer',()=>supprimerBien(bienId),'btn-danger');
   addBtn(actions,'+ Nouvelle visite',()=>openModalCR(bienId),'btn-primary');
 }
 
@@ -1397,6 +1529,8 @@ function showContactDetail(contactId){
   document.getElementById('contact-detail-content').innerHTML = html;
   showView('contact-detail',null);
   document.getElementById('topbar-title').textContent = contact.nom;
+  const actions = document.getElementById('topbar-actions'); actions.innerHTML='';
+  addBtn(actions,'✏ Modifier',()=>openModalModifierContact(contact.id),'btn-ghost');
 }
 
 function renderVisites(){
@@ -1452,6 +1586,18 @@ function showCR(visitId, bienId){
 function switchCRTabDetail(tab,btn,visitId){ crDetailTab=tab; document.querySelectorAll('#cr-content .cr-tab').forEach(t=>t.classList.remove('active')); btn.classList.add('active'); const v=state.visites.find(v=>v.id===visitId); document.getElementById('cr-detail-body').textContent=v?.cr?.[tab]||'—'; }
 function copierDetail(visitId){ const v=state.visites.find(v=>v.id===visitId); navigator.clipboard.writeText(v?.cr?.[crDetailTab]||'').then(()=>showToast('✓ Copié !')); }
 function telechargerDetail(visitId){ const v=state.visites.find(vi=>vi.id===visitId); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([v?.cr?.pdf||v?.cr?.email||''],{type:'text/plain;charset=utf-8'})); a.download='CR-'+v.visiteur+'.txt'; a.click(); }
+async function supprimerBien(bienId) {
+  if(!confirm('Supprimer ce bien et toutes ses visites ?')) return;
+  await supa.from('visites').delete().eq('bien_id', bienId);
+  await supa.from('bien_historique').delete().eq('bien_id', bienId);
+  await supa.from('biens').delete().eq('id', bienId);
+  state.biens = state.biens.filter(b=>b.id!==bienId);
+  state.visites = state.visites.filter(v=>v.bienId!==bienId);
+  state.historique = state.historique.filter(h=>h.bien_id!==bienId);
+  showToast('Bien supprimé');
+  showView('biens', document.querySelectorAll('.nav-item')[1]);
+}
+
 async function supprimerVisite(visitId,bienId){ if(!confirm('Supprimer ce compte-rendu ?')) return; await supa.from('visites').delete().eq('id',visitId); state.visites=state.visites.filter(v=>v.id!==visitId); showToast('Visite supprimée'); if(bienId) showFiche(bienId); else showView('visites',document.querySelectorAll('.nav-item')[2]); }
 
 function renderDashboard(){
