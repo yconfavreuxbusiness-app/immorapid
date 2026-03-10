@@ -1080,8 +1080,7 @@ function exportCSV() {
     c.delai ? ({urgent:'Urgent',court:'Court terme',moyen:'Moyen terme',long:'Long terme',flou:'Pas décidé'}[c.delai]||'') : '',
     c.notes
   ].map(v=>`"${(v||'').replace(/"/g,'""')}"`).join(','));
-  const csv = [headers.join(','), ...rows].join('
-');
+  const csv = [headers.join(','), ...rows].join('\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8'}));
   a.download = 'contacts-immorapid.csv';
