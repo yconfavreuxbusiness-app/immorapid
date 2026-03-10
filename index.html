@@ -1449,14 +1449,15 @@ async function signUp() {
 }
 async function signOut() {
   try {
-    await supa.auth.signOut();
+    await supa.auth.signOut({ scope: 'global' });
   } catch(e) {}
-  // Reset state
   state = { user:null, biens:[], visites:[], contacts:[] };
-  // Hide app, show landing
+  currentUser = null;
   document.getElementById('screen-app').style.display = 'none';
   document.getElementById('screen-auth').style.display = 'none';
-  showLanding();
+  document.getElementById('screen-landing').style.display = 'block';
+  document.body.style.overflow = '';
+  window.scrollTo(0,0);
 }
 
 // ── MOT DE PASSE ──
