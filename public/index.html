@@ -673,6 +673,7 @@ textarea.form-input { resize:vertical; min-height:84px; }
 
 /* MOBILE */
 @media(max-width:768px) {
+  /* Landing */
   #screen-landing .l-nav { padding:0 20px; }
   #screen-landing .l-links { display:none; }
   #screen-landing .l-hero { padding:100px 24px 60px; }
@@ -681,33 +682,85 @@ textarea.form-input { resize:vertical; min-height:84px; }
   #screen-landing .l-problem-grid { grid-template-columns:1fr; }
   #screen-landing .l-steps { grid-template-columns:1fr 1fr; }
   #screen-landing footer { padding:24px; flex-direction:column; text-align:center; }
+
+  /* Prevent any horizontal overflow */
+  body { overflow-x:hidden; }
+  #screen-app { overflow-x:hidden; }
+  .main { overflow-x:hidden; width:100vw; max-width:100vw; }
+  .content { overflow-x:hidden; }
+
+  /* Mobile action bar */
+  .mobile-actions { display:flex; gap:8px; padding:10px 14px; background:var(--surface); border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .mobile-actions:empty { display:none; }
+  .mobile-actions .btn { flex:1; justify-content:center; font-size:13px; padding:10px 14px; }
+  /* Hide topbar actions on mobile */
+  #topbar-actions { display:none; }
+
+  /* Hamburger */
   .hamburger { display:flex; }
   .sidebar { position:fixed; left:-100%; top:0; height:100vh; z-index:300; transition:left 0.22s ease; width:260px; }
   .sidebar.open { left:0; }
   .sidebar-overlay.open { display:block; }
-  .main { width:100%; height:100vh; }
-  .topbar { padding:0 14px; height:52px; gap:8px; }
-  .topbar-title { font-size:15px; }
+
+  /* Topbar — hamburger + title + ONE action button */
+  .topbar { padding:0 12px; height:52px; gap:6px; overflow:hidden; }
+  .topbar-title { font-size:14px; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .topbar-search { display:none; }
-  #topbar-actions .btn { padding:6px 12px; font-size:12px; }
-  .app-banner { padding:7px 14px; font-size:11px; }
+  #topbar-actions { display:flex; gap:6px; flex-shrink:0; }
+  #topbar-actions .btn { padding:7px 12px; font-size:12px; white-space:nowrap; }
+  /* Hide secondary buttons on mobile, keep only primary */
+  #topbar-actions .btn-ghost { display:none; }
+
+  /* Banner */
+  .app-banner { padding:7px 14px; font-size:11px; white-space:nowrap; overflow:hidden; }
   .app-banner span { display:none; }
-  .content { padding:16px 14px; }
-  .stats-grid { grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px; }
-  .stat-value { font-size:26px; }
-  .stat-card { padding:16px; }
-  .bien-grid { grid-template-columns:1fr; }
-  .contacts-grid { grid-template-columns:1fr; }
-  .info-grid { grid-template-columns:1fr 1fr; gap:8px; }
-  .visite-card { flex-direction:column; align-items:flex-start; gap:10px; }
+
+  /* Content */
+  .content { padding:16px 14px; width:100%; max-width:100%; }
+
+  /* Stats — 2 colonnes, pas de débordement */
+  .stats-grid { grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; width:100%; }
+  .stat-card { padding:14px; min-width:0; overflow:hidden; }
+  .stat-value { font-size:24px; }
+  .stat-label { font-size:9px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  /* Section header */
+  .section-header { flex-wrap:wrap; gap:8px; width:100%; }
+  .section-title { font-size:15px; }
+
+  /* Cards */
+  .bien-grid { grid-template-columns:1fr; width:100%; }
+  .bien-card { width:100%; }
+  .contacts-grid { grid-template-columns:1fr; width:100%; }
+  .contact-card { width:100%; }
+
+  /* Info grid */
+  .info-grid { grid-template-columns:1fr 1fr; gap:8px; width:100%; }
+  .info-card { min-width:0; overflow:hidden; }
+
+  /* Visites */
+  .visite-card { flex-direction:column; align-items:flex-start; gap:10px; width:100%; }
+  .visite-meta { flex-wrap:wrap; gap:6px; }
+
+  /* Demo banner */
+  .demo-banner { flex-direction:column; align-items:flex-start; gap:12px; }
+
+  /* Modals — bottom sheet */
   .modal-overlay { padding:0; align-items:flex-end; }
-  .modal { border-radius:var(--r-xl) var(--r-xl) 0 0; max-height:92vh; padding:22px 18px; }
+  .modal { border-radius:var(--r-xl) var(--r-xl) 0 0; max-height:92vh; padding:22px 18px; width:100%; }
   .form-row { grid-template-columns:1fr; gap:0; }
-  .section-header { flex-wrap:wrap; gap:8px; }
+  .modal-footer { flex-wrap:wrap; }
+
+  /* Matching */
+  .matching-section { padding:16px; }
+  .match-item { flex-wrap:wrap; gap:8px; }
 }
+
 @media(max-width:400px) {
-  .stats-grid { grid-template-columns:1fr; }
+  .stats-grid { grid-template-columns:1fr 1fr; }
+  .stat-value { font-size:20px; }
   .info-grid { grid-template-columns:1fr; }
+  #topbar-actions .btn span { display:none; }
 }
 </style>
 </head>
@@ -1719,13 +1772,19 @@ function showView(name, btn){
   const titles = {dashboard:'Tableau de bord',biens:'Mes biens',visites:'Toutes les visites',contacts:'Contacts',fiche:'Fiche bien',cr:'Compte-rendu','contact-detail':'Fiche contact'};
   document.getElementById('topbar-title').textContent = titles[name]||'';
   const actions = document.getElementById('topbar-actions'); actions.innerHTML='';
+  const mobAct = document.getElementById('mobile-actions'); if(mobAct) mobAct.innerHTML='';
   if(name==='dashboard') renderDashboard();
   if(name==='biens'){ renderBiens(); addBtn(actions,'+ Nouveau bien',openModalBien,'btn-primary'); }
   if(name==='visites') renderVisites();
   if(name==='contacts'){ renderContacts(); addBtn(actions,'⬇ Exporter CSV',exportCSV,'btn-ghost'); addBtn(actions,'+ Nouveau contact',openModalContact,'btn-primary'); }
   if(name==='vendus'){ renderVendus(); }
 }
-function addBtn(c,l,fn,cls){ const b=document.createElement('button'); b.className='btn '+cls; b.textContent=l; b.onclick=fn; c.appendChild(b); }
+function addBtn(c,l,fn,cls){
+  const b=document.createElement('button'); b.className='btn '+cls; b.textContent=l; b.onclick=fn; c.appendChild(b);
+  // Also add to mobile actions bar
+  const mob = document.getElementById('mobile-actions');
+  if(mob){ const bm=document.createElement('button'); bm.className='btn '+cls; bm.textContent=l; bm.onclick=fn; mob.appendChild(bm); }
+}
 function openModal(id){ document.getElementById(id).classList.add('open'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 function openModalBien(){
@@ -2133,6 +2192,7 @@ function showFiche(bienId){
   showView('fiche',null);
   document.getElementById('topbar-title').textContent = bien.adresse;
   const actions = document.getElementById('topbar-actions'); actions.innerHTML='';
+  const mobAct2 = document.getElementById('mobile-actions'); if(mobAct2) mobAct2.innerHTML='';
   addBtn(actions,'✏ Modifier',()=>openModalModifier(bienId),'btn-ghost');
   addBtn(actions,'🗑 Supprimer',()=>supprimerBien(bienId),'btn-danger');
   addBtn(actions,'+ Nouvelle visite',()=>openModalCR(bienId),'btn-primary');
@@ -2234,6 +2294,7 @@ function showContactDetail(contactId){
   showView('contact-detail',null);
   document.getElementById('topbar-title').textContent = contact.nom;
   const actions = document.getElementById('topbar-actions'); actions.innerHTML='';
+  const mobAct3 = document.getElementById('mobile-actions'); if(mobAct3) mobAct3.innerHTML='';
   addBtn(actions,'✏ Modifier',()=>openModalModifierContact(contact.id),'btn-ghost');
 }
 
