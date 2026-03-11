@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ImmoRapid — Comptes-rendus de visite en 30 secondes</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230d0d0d'/><text y='.9em' font-size='70' x='12' fill='%23c9a96e'>IR</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
@@ -345,7 +345,7 @@ body {
 .signout-btn:hover { color:var(--danger); }
 
 /* MAIN */
-.main { flex:1; height:100vh; overflow:hidden; overflow-x:hidden; display:flex; flex-direction:column; min-width:0; width:0; }
+.main { flex:1; height:100vh; overflow:hidden; overflow-x:hidden; display:flex; flex-direction:column; min-width:0; }
 .topbar {
   flex-shrink:0; background:var(--surface); border-bottom:1px solid var(--border);
   padding:0 28px; height:58px; display:flex; align-items:center;
@@ -681,123 +681,172 @@ textarea.form-input { resize:vertical; min-height:84px; }
 
 /* MOBILE */
 @media(max-width:768px) {
-  /* ── GLOBAL overflow fix ── */
-  #screen-app, .app-layout, .main, .content, .view { overflow-x:hidden; max-width:100vw; width:100%; }
+  /* ── Prevent ALL horizontal scroll ── */
+  html, body { overflow-x:hidden !important; }
+  #screen-app, .app-layout, .main, .content { overflow-x:hidden !important; max-width:100vw; }
+  .content { width:100%; box-sizing:border-box; }
 
   /* ── Landing ── */
   #screen-landing .l-nav { padding:0 18px; }
   #screen-landing .l-links { display:none; }
   #screen-landing .l-hero { padding:90px 20px 56px; }
   #screen-landing h1 { font-size:clamp(30px,8vw,46px); letter-spacing:-1px; }
-  #screen-landing .l-sub { font-size:15px; }
-  #screen-landing .l-section,#screen-landing .l-section-dark,#screen-landing .l-section-gray { padding:52px 20px; }
-  #screen-landing .l-problem-grid { grid-template-columns:1fr; }
+  #screen-landing .l-section,
+  #screen-landing .l-section-dark,
+  #screen-landing .l-section-gray { padding:52px 20px; }
+  #screen-landing .l-problem-grid { grid-template-columns:1fr; gap:12px; }
   #screen-landing .l-steps { grid-template-columns:1fr 1fr; }
   #screen-landing footer { padding:24px 20px; flex-direction:column; text-align:center; }
 
   /* ── Sidebar ── */
   .hamburger { display:flex; }
-  .sidebar { position:fixed; left:-100%; top:0; height:100vh; z-index:300; transition:left 0.22s ease; width:260px; max-width:80vw; }
+  .sidebar {
+    position:fixed; left:-100%; top:0; height:100vh; z-index:300;
+    transition:left 0.22s ease; width:260px; max-width:85vw;
+  }
   .sidebar.open { left:0; }
   .sidebar-overlay.open { display:block; }
 
   /* ── Topbar ── */
-  .topbar { padding:0 12px; height:52px; gap:8px; overflow:hidden; width:100%; }
-  .topbar-title { font-size:14px; font-weight:700; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .topbar {
+    padding:0 14px; height:52px; gap:8px;
+    overflow:hidden; width:100%; box-sizing:border-box;
+  }
+  .topbar-title {
+    font-size:15px; flex:1; min-width:0;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
   .topbar-search { display:none; }
   #topbar-actions { display:none !important; }
 
   /* ── Mobile action bar ── */
-  .mobile-actions { display:flex; gap:8px; padding:10px 14px; background:var(--surface); border-bottom:1px solid var(--border); width:100%; box-sizing:border-box; }
-  .mobile-actions:empty { display:none; padding:0; }
-  .mobile-actions .btn { flex:1; justify-content:center; font-size:13px; padding:10px 10px; min-width:0; }
+  .mobile-actions {
+    display:flex; gap:8px; padding:10px 14px;
+    background:var(--surface); border-bottom:1px solid var(--border);
+    width:100%; box-sizing:border-box; flex-wrap:wrap;
+  }
+  .mobile-actions:empty { display:none; padding:0; border:none; }
+  .mobile-actions .btn {
+    flex:1; justify-content:center; font-size:13px;
+    padding:10px 10px; min-width:0; box-sizing:border-box;
+  }
 
   /* ── Banner ── */
-  .app-banner { padding:7px 14px; font-size:11px; width:100%; box-sizing:border-box; overflow:hidden; }
+  .app-banner {
+    padding:7px 14px; font-size:11px;
+    width:100%; box-sizing:border-box;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
   .app-banner span { display:none; }
 
   /* ── Content ── */
-  .content { padding:14px 14px; box-sizing:border-box; width:100%; }
+  .content { padding:14px; box-sizing:border-box; }
 
-  /* ── Stats — 2 colonnes ── */
-  .stats-grid { grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; width:100%; }
-  .stat-card { padding:14px 12px; min-width:0; overflow:hidden; }
-  .stat-value { font-size:26px; letter-spacing:-0.5px; }
-  .stat-label { font-size:9px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .stat-sub { font-size:10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  /* ── Stats ── */
+  .stats-grid {
+    grid-template-columns:1fr 1fr; gap:10px;
+    margin-bottom:14px; width:100%;
+  }
+  .stat-card { padding:14px 12px; min-width:0; }
+  .stat-value { font-size:26px; }
+  .stat-label { font-size:9px; }
+  .stat-sub { font-size:10px; }
 
-  /* ── Section header ── */
+  /* ── Section headers ── */
   .section-header { flex-wrap:wrap; gap:8px; width:100%; margin-bottom:12px; }
   .section-title { font-size:15px; }
 
   /* ── Bien cards ── */
-  .bien-grid { grid-template-columns:1fr; width:100%; gap:10px; }
-  .bien-card { width:100%; min-width:0; }
-  .bien-card-top { min-height:56px; padding:14px; }
+  .bien-grid { grid-template-columns:1fr !important; gap:10px; width:100%; }
+  .bien-card { width:100%; min-width:0; box-sizing:border-box; }
+  .bien-card-top { padding:14px; min-height:52px; }
   .bien-card-body { padding:14px; }
   .bien-adresse { font-size:14px; }
   .bien-details { font-size:11px; }
   .bien-prix { font-size:13px; }
 
   /* ── Contacts ── */
-  .contacts-grid { grid-template-columns:1fr; width:100%; gap:10px; }
-  .contact-card { width:100%; min-width:0; padding:16px; }
+  .contacts-grid { grid-template-columns:1fr !important; gap:10px; width:100%; }
+  .contact-card { width:100%; min-width:0; padding:16px; box-sizing:border-box; }
   .contacts-filter { gap:6px; flex-wrap:wrap; }
   .filter-btn { font-size:12px; padding:5px 14px; }
 
   /* ── Info grid ── */
   .info-grid { grid-template-columns:1fr 1fr; gap:8px; width:100%; }
-  .info-card { padding:12px; min-width:0; }
-  .info-card-value { font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .info-card { padding:12px; min-width:0; overflow:hidden; }
+  .info-card-value { font-size:13px; overflow:hidden; text-overflow:ellipsis; }
 
   /* ── Visites ── */
-  .visite-list { gap:8px; width:100%; }
-  .visite-card { flex-direction:column; align-items:flex-start; gap:8px; padding:14px; width:100%; }
-  .visite-visiteur { font-size:14px; }
+  .visite-card {
+    flex-direction:column; align-items:flex-start;
+    gap:8px; padding:14px; width:100%; box-sizing:border-box;
+  }
   .visite-meta { gap:8px; flex-wrap:wrap; font-size:11px; }
 
   /* ── Demo banner ── */
   .demo-banner { flex-direction:column; align-items:flex-start; gap:10px; padding:14px; }
   .btn-demo { width:100%; justify-content:center; }
 
+  /* ── Back btn ── */
+  .back-btn { font-size:13px; margin-bottom:14px; }
+
+  /* ── Modals — bottom sheet ── */
+  .modal-overlay {
+    padding:0 !important; align-items:flex-end;
+  }
+  .modal {
+    border-radius:20px 20px 0 0 !important;
+    max-height:88vh;
+    padding:20px 16px;
+    width:100vw !important;
+    max-width:100vw !important;
+    box-sizing:border-box !important;
+    overflow-x:hidden !important;
+    overflow-y:auto;
+  }
+  .modal * { max-width:100%; box-sizing:border-box; }
+  .form-input, select.form-input, textarea.form-input {
+    width:100% !important; max-width:100% !important;
+    box-sizing:border-box !important; font-size:16px !important;
+  }
+  .form-row { grid-template-columns:1fr !important; gap:0; }
+  .form-group { margin-bottom:12px; }
+  .form-label { font-size:11px; margin-bottom:5px; }
+  .modal-header { margin-bottom:16px; }
+  .modal-title { font-size:16px; }
+  .modal-footer {
+    flex-wrap:wrap; gap:8px; margin-top:16px;
+    padding-top:14px; flex-direction:row;
+  }
+  .modal-footer .btn { flex:1; justify-content:center; min-width:120px; }
+  .divider { margin:14px 0; }
+
+  /* ── CR output ── */
+  .cr-tab { font-size:11px; padding:10px 4px; }
+  .cr-body { padding:16px; font-size:13px; min-height:100px; }
+  .cr-actions { gap:6px; padding:10px 12px; flex-wrap:wrap; }
+  .cr-actions .btn { flex:1; font-size:12px; padding:8px 10px; justify-content:center; }
+
   /* ── Matching ── */
   .matching-section { padding:14px; }
   .match-item { flex-wrap:wrap; gap:6px; }
   .match-bar { width:36px; }
 
-  /* ── Back btn ── */
-  .back-btn { font-size:13px; margin-bottom:14px; }
-
-  /* ── Modals — bottom sheet ── */
-  .modal-overlay { padding:0 !important; align-items:flex-end; }
-  .modal {
-    border-radius:var(--r-xl) var(--r-xl) 0 0 !important;
-    max-height:88vh; padding:20px 16px;
+  /* ── Onboarding ── */
+  .onboarding-overlay { padding:0 !important; align-items:flex-end; }
+  .onboarding-card {
+    border-radius:20px 20px 0 0;
     width:100vw; max-width:100vw;
     box-sizing:border-box;
   }
-  .modal-header { margin-bottom:16px; }
-  .modal-title { font-size:16px; }
-  .form-group { margin-bottom:12px; }
-  .form-label { font-size:11px; margin-bottom:5px; }
-  .form-input { padding:10px 12px; font-size:14px; border-radius:var(--r-sm); }
-  textarea.form-input { min-height:72px; }
-  .form-row { grid-template-columns:1fr; gap:0; }
-  .modal-footer { flex-wrap:wrap; gap:8px; margin-top:16px; padding-top:14px; }
-  .modal-footer .btn { flex:1; justify-content:center; min-width:0; }
-  .divider { margin:14px 0; }
-  .form-section-title { margin-bottom:10px; }
-
-  /* ── CR output ── */
-  .cr-output { margin-top:12px; }
-  .cr-tab { font-size:11px; padding:10px 4px; }
-  .cr-body { padding:16px; font-size:13px; min-height:100px; }
-  .cr-actions { gap:6px; padding:10px 12px; }
-  .cr-actions .btn { font-size:12px; padding:8px 12px; }
 }
 
 @media(max-width:390px) {
   .stats-grid { grid-template-columns:1fr 1fr; gap:8px; }
+  .stat-value { font-size:22px; }
+  .info-grid { grid-template-columns:1fr; }
+  .content { padding:12px; }
+}
   .stat-value { font-size:22px; }
   .info-grid { grid-template-columns:1fr; }
   .content { padding:12px 12px; }
@@ -856,7 +905,7 @@ textarea.form-input { resize:vertical; min-height:84px; }
     <div class="l-pricing-badge">🎉 Lancement gratuit</div>
     <div style="font-family:'Clash Display',sans-serif;font-size:16px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:8px">Starter</div>
     <div class="l-price"><sup>€</sup>9<sub>/mois</sub></div>
-    <div style="font-size:13px;color:var(--or);font-weight:500;margin:8px 0 12px">Gratuit pendant le lancement</div>
+    <div style="font-size:13px;color:var(--accent);font-weight:500;margin:8px 0 12px">Gratuit pendant le lancement</div>
     <ul class="l-features">
       <li>Comptes-rendus de visite illimités</li>
       <li>3 formats (email vendeur, PDF, WhatsApp)</li>
@@ -871,10 +920,10 @@ textarea.form-input { resize:vertical; min-height:84px; }
   <a href="#" class="l-logo" style="color:white">Immo<span>Rapid</span></a>
   <p>© 2026 ImmoRapid · Fait pour les agents immobiliers français</p>
   <p style="display:flex;gap:16px;flex-wrap:wrap">
-  <a href="#" onclick="event.preventDefault();showLegalModal('mentions')" style="color:rgba(255,255,255,0.45);text-decoration:none;font-size:13px;transition:color 0.15s" onmouseover="this.style.color='#FF385C'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Mentions légales</a>
-  <a href="#" onclick="event.preventDefault();showLegalModal('cgv')" style="color:rgba(255,255,255,0.45);text-decoration:none;font-size:13px;transition:color 0.15s" onmouseover="this.style.color='#FF385C'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">CGV</a>
-  <a href="#" onclick="event.preventDefault();showLegalModal('confidentialite')" style="color:rgba(255,255,255,0.45);text-decoration:none;font-size:13px;transition:color 0.15s" onmouseover="this.style.color='#FF385C'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Confidentialité</a>
-  <a href="#" onclick="event.preventDefault();showLegalModal('confidentialite')" style="color:rgba(255,255,255,0.45);text-decoration:none;font-size:13px;transition:color 0.15s" onmouseover="this.style.color='#FF385C'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">RGPD</a>
+  <a href="#" onclick="event.preventDefault();showLegalModal('mentions')" style="color:rgba(255,255,255,0.45);text-decoration:none;font-size:13px;transition:color 0.15s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Mentions légales</a>
+  <a href="#" onclick="event.preventDefault();showLegalModal('cgv')" style="color:rgba(255,255,255,0.45);text-decoration:none;font-size:13px;transition:color 0.15s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">CGV</a>
+  <a href="#" onclick="event.preventDefault();showLegalModal('confidentialite')" style="color:rgba(255,255,255,0.45);text-decoration:none;font-size:13px;transition:color 0.15s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Confidentialité</a>
+  <a href="#" onclick="event.preventDefault();showLegalModal('confidentialite')" style="color:rgba(255,255,255,0.45);text-decoration:none;font-size:13px;transition:color 0.15s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">RGPD</a>
 </p>
 </footer>
 </div>
@@ -938,9 +987,9 @@ textarea.form-input { resize:vertical; min-height:84px; }
           <button class="signout-btn" onclick="signOut()" title="Déconnexion" style="color:rgba(255,255,255,0.35);font-size:13px">Quitter</button>
         </div>
         <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;padding:12px 4px 0">
-          <button onclick="showLegalModal('mentions')" style="background:none;border:none;font-size:11px;color:rgba(255,255,255,0.3);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:color 0.15s;padding:0" onmouseover="this.style.color='var(--or)'" onmouseout="this.style.color='var(--gris-mid)'">Mentions</button>
-          <button onclick="showLegalModal('cgv')" style="background:none;border:none;font-size:11px;color:rgba(255,255,255,0.3);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:color 0.15s;padding:0" onmouseover="this.style.color='var(--or)'" onmouseout="this.style.color='var(--gris-mid)'">CGV</button>
-          <button onclick="showLegalModal('confidentialite')" style="background:none;border:none;font-size:11px;color:rgba(255,255,255,0.3);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:color 0.15s;padding:0" onmouseover="this.style.color='var(--or)'" onmouseout="this.style.color='var(--gris-mid)'">RGPD</button>
+          <button onclick="showLegalModal('mentions')" style="background:none;border:none;font-size:11px;color:rgba(255,255,255,0.3);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:color 0.15s;padding:0" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.3)'">Mentions</button>
+          <button onclick="showLegalModal('cgv')" style="background:none;border:none;font-size:11px;color:rgba(255,255,255,0.3);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:color 0.15s;padding:0" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.3)'">CGV</button>
+          <button onclick="showLegalModal('confidentialite')" style="background:none;border:none;font-size:11px;color:rgba(255,255,255,0.3);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:color 0.15s;padding:0" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.3)'">RGPD</button>
         </div>
       </div>
     </aside>
@@ -958,6 +1007,7 @@ textarea.form-input { resize:vertical; min-height:84px; }
         </div>
         <div id="topbar-actions"></div>
       </div>
+      <div id="mobile-actions" class="mobile-actions"></div>
       <div class="content">
         <div class="view active" id="view-dashboard">
           <div class="demo-banner" id="demo-banner">
@@ -1264,7 +1314,7 @@ textarea.form-input { resize:vertical; min-height:84px; }
       <div class="divider"></div>
       <div class="form-section-title">Acheteur</div>
       <div class="form-group">
-        <label class="form-label">Choisir un contact existant <span style="font-weight:400;color:var(--gris)">(optionnel)</span></label>
+        <label class="form-label">Choisir un contact existant <span style="font-weight:400;color:var(--text-2)">(optionnel)</span></label>
         <select class="form-input" id="cr-contact-select" onchange="prefillFromContact(this.value)"><option value="">— Nouveau visiteur —</option></select>
       </div>
       <div class="divider" style="margin:12px 0"></div>
@@ -1327,7 +1377,7 @@ textarea.form-input { resize:vertical; min-height:84px; }
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">📝 Notes internes <span style="font-weight:400;color:var(--gris)">(non envoyées)</span></label>
+          <label class="form-label">📝 Notes internes <span style="font-weight:400;color:var(--text-2)">(non envoyées)</span></label>
           <textarea class="form-input" id="cr-notes" style="min-height:60px" placeholder="Notes privées, à ne pas partager..."></textarea>
         </div>
         <div class="form-group">
@@ -1540,7 +1590,7 @@ async function signUp() {
   if(password.length<6){err.textContent='Mot de passe trop court (6 caractères min).';return;}
   const {error} = await supa.auth.signUp({email,password});
   if(error) err.textContent = error.message;
-  else{err.style.color='var(--or)';err.textContent='Compte créé ! Vérifiez votre email pour confirmer.';}
+  else{err.style.color='var(--accent)';err.textContent='Compte créé ! Vérifiez votre email pour confirmer.';}
 }
 async function signOut() {
   try {
@@ -1689,7 +1739,7 @@ async function sendReset() {
     redirectTo: window.location.origin
   });
   if(error){ msg.textContent = error.message; return; }
-  msg.style.color = 'var(--or)';
+  msg.style.color = 'var(--accent)';
   msg.textContent = 'Lien envoyé ! Vérifiez votre boîte mail.';
 }
 
@@ -2195,11 +2245,11 @@ function showFiche(bienId){
   const visites = state.visites.filter(v=>v.bienId===bienId);
   const fromVendu = bien.statut==='vendu'; document.getElementById('fiche-back').onclick = ()=>showView(fromVendu?'vendus':'biens',document.querySelectorAll('.nav-item')[fromVendu?4:1]);
   document.getElementById('fiche-content').innerHTML = `
-    <div style="background:white;border:1px solid var(--gris-light);border-radius:16px;padding:32px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px">
+    <div style="background:white;border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px">
       <div>
-        <div style="font-size:11px;color:var(--or);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">${bien.type}</div>
+        <div style="font-size:11px;color:var(--accent);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">${bien.type}</div>
         <div style="font-family:'Clash Display',sans-serif;font-size:28px;font-weight:700;letter-spacing:-0.8px;margin-bottom:8px">${bien.adresse}</div>
-        <div style="font-size:14px;color:var(--gris);display:flex;gap:20px;flex-wrap:wrap">
+        <div style="font-size:14px;color:var(--text-2);display:flex;gap:20px;flex-wrap:wrap">
           ${bien.surface?'<span>'+bien.surface+' m²</span>':''}
           ${bien.pieces?'<span>'+bien.pieces+' pièces</span>':''}
           ${bien.vendeur?'<span>Vendeur : '+bien.vendeur+'</span>':''}
@@ -2217,7 +2267,7 @@ function showFiche(bienId){
   // Add historique section
   const hist = state.historique.filter(h=>h.bien_id===bienId);
   if(hist.length) {
-    const histHtml = `<div style="background:white;border:1px solid var(--gris-light);border-radius:16px;padding:28px;margin-top:24px">
+    const histHtml = `<div style="background:white;border:1px solid var(--border);border-radius:16px;padding:28px;margin-top:24px">
       <div class="section-title" style="margin-bottom:16px">📋 Historique des modifications</div>
       ${hist.map(h=>`<div class="historique-item">
         <div class="historique-dot"></div>
@@ -2287,11 +2337,11 @@ function showContactDetail(contactId){
   const initials = contact.nom.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2);
   document.getElementById('contact-back').onclick = ()=>showView('contacts',document.querySelectorAll('.nav-item')[3]);
   let html = `
-    <div style="background:white;border:1px solid var(--gris-light);border-radius:16px;padding:32px;margin-bottom:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+    <div style="background:white;border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
       <div class="contact-avatar ${contact.role==='acheteur'?'avatar-acheteur':'avatar-vendeur'}" style="width:64px;height:64px;font-size:24px;flex-shrink:0">${initials}</div>
       <div>
         <div style="font-family:'Clash Display',sans-serif;font-size:28px;font-weight:700;letter-spacing:-0.8px">${contact.nom}</div>
-        <div style="display:flex;gap:16px;font-size:14px;color:var(--gris);margin-top:6px;flex-wrap:wrap">
+        <div style="display:flex;gap:16px;font-size:14px;color:var(--text-2);margin-top:6px;flex-wrap:wrap">
           <span class="contact-role ${contact.role==='acheteur'?'role-acheteur':'role-vendeur'}">${contact.role==='acheteur'?'Acheteur':'Vendeur'}</span>
           ${contact.tel?'<span>📞 '+contact.tel+'</span>':''}
           ${contact.email?'<span>✉ '+contact.email+'</span>':''}
@@ -2304,7 +2354,7 @@ function showContactDetail(contactId){
       ${contact.typeRecherche?`<div class="info-card"><div class="info-card-label">Type recherché</div><div class="info-card-value">${contact.typeRecherche}</div></div>`:''}
       ${contact.secteur?`<div class="info-card"><div class="info-card-label">Secteur</div><div class="info-card-value">${contact.secteur}</div></div>`:''}
       ${contact.delai?`<div class="info-card"><div class="info-card-label">${contact.role==='vendeur'?'Délai de vente':"Délai d'achat"}</div><div class="info-card-value">${DELAI_LABELS[contact.delai]||''}</div></div>`:''}
-      ${contact.rappel?`<div class="info-card" style="border-color:rgba(201,169,110,0.4);background:rgba(201,169,110,0.05)"><div class="info-card-label">📅 Rappel</div><div class="info-card-value" style="color:var(--or)">${formatDate(contact.rappel)}</div></div>`:''}
+      ${contact.rappel?`<div class="info-card" style="border-color:rgba(201,169,110,0.4);background:rgba(201,169,110,0.05)"><div class="info-card-label">📅 Rappel</div><div class="info-card-value" style="color:var(--accent)">${formatDate(contact.rappel)}</div></div>`:''}
     </div>`;
   if(contact.role==='acheteur'&&matching.length) html+=`
     <div class="matching-section">
@@ -2360,10 +2410,10 @@ function showCR(visitId, bienId){
   crDetailTab = 'email';
   document.getElementById('cr-back-btn').onclick = ()=>{ if(bienId) showFiche(bienId); else showView('visites',document.querySelectorAll('.nav-item')[2]); };
   document.getElementById('cr-content').innerHTML = `
-    <div style="background:white;border:1px solid var(--gris-light);border-radius:16px;padding:32px;margin-bottom:16px">
-      <div style="font-size:11px;color:var(--or);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Compte-rendu</div>
-      <div style="font-family:'Clash Display',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px">${visite.visiteur}</div>
-      ${bien?`<div style="font-size:14px;color:var(--gris);margin-bottom:20px">${bien.adresse}</div>`:''}
+    <div style="background:white;border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:16px">
+      <div style="font-size:11px;color:var(--accent);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Compte-rendu</div>
+      <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:700;margin-bottom:4px">${visite.visiteur}</div>
+      ${bien?`<div style="font-size:14px;color:var(--text-2);margin-bottom:20px">${bien.adresse}</div>`:''}
       <div class="info-grid" style="margin-bottom:0">
         <div class="info-card"><div class="info-card-label">Date</div><div class="info-card-value">${formatDate(visite.date)}</div></div>
         <div class="info-card"><div class="info-card-label">Budget</div><div class="info-card-value">${visite.budget||'—'}</div></div>
@@ -2371,8 +2421,8 @@ function showCR(visitId, bienId){
         ${visite.delai?`<div class="info-card"><div class="info-card-label">Délai</div><div class="info-card-value">${DELAI_LABELS[visite.delai]}</div></div>`:''}
         ${visite.tel?`<div class="info-card"><div class="info-card-label">Téléphone</div><div class="info-card-value">${visite.tel}</div></div>`:''}
         ${visite.email?`<div class="info-card"><div class="info-card-label">Email</div><div class="info-card-value">${visite.email}</div></div>`:''}
-        ${visite.rappel?`<div class="info-card" style="border-color:rgba(201,169,110,0.4);background:rgba(201,169,110,0.05)"><div class="info-card-label">📅 Rappel</div><div class="info-card-value" style="color:var(--or)">${formatDate(visite.rappel)}</div></div>`:''}
-        ${visite.notes?`<div class="info-card" style="grid-column:1/-1"><div class="info-card-label">📝 Notes internes</div><div class="info-card-value" style="font-size:13px;color:var(--gris)">${visite.notes}</div></div>`:''}
+        ${visite.rappel?`<div class="info-card" style="border-color:rgba(201,169,110,0.4);background:rgba(201,169,110,0.05)"><div class="info-card-label">📅 Rappel</div><div class="info-card-value" style="color:var(--accent)">${formatDate(visite.rappel)}</div></div>`:''}
+        ${visite.notes?`<div class="info-card" style="grid-column:1/-1"><div class="info-card-label">📝 Notes internes</div><div class="info-card-value" style="font-size:13px;color:var(--text-2)">${visite.notes}</div></div>`:''}
       </div>
     </div>
     <div class="cr-output">
