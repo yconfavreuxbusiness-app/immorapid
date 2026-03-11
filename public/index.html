@@ -8,8 +8,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-
 :root {
   /* Palette */
   --bg:          #f5f3ef;
@@ -2482,7 +2480,14 @@ function showToast(msg){ const t=document.getElementById('toast'); t.textContent
 
 document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('open'); }));
 
-init();
+// Attendre que Supabase soit chargé (defer)
+if(typeof supabase !== 'undefined') {
+  init();
+} else {
+  document.addEventListener('DOMContentLoaded', ()=>{ 
+    const check = setInterval(()=>{ if(typeof supabase !== 'undefined'){ clearInterval(check); init(); } }, 50);
+  });
+}
 </script>
 </body>
 </html>
