@@ -1928,7 +1928,7 @@ async function loadAll() {
 }
 function dbToBien(r){ return {id:r.id,type:r.type,adresse:r.adresse,prix:r.prix,surface:r.surface,pieces:r.pieces,vendeur:r.vendeur,vendeurTel:r.vendeur_tel,vendeurEmail:r.vendeur_email,notes:r.notes,statut:r.statut||'actif',createdAt:r.created_at}; }
 function dbToVisite(r){ return {id:r.id,bienId:r.bien_id,visiteur:r.visiteur,tel:r.tel,email:r.email,age:r.age,budget:r.budget,typeRecherche:r.type_recherche,secteur:r.secteur,date:r.date,interest:r.interest,delai:r.delai||'',impressions:r.impressions,notes:r.notes||'',rappel:r.rappel||'',cr:{email:r.cr_email,pdf:r.cr_pdf,court:r.cr_court,acheteur:r.cr_acheteur||''},savedAt:r.saved_at}; }
-function dbToContact(r){ return {id:r.id,auto:false,role:r.role,nom:r.nom,tel:r.tel,email:r.email,age:r.age,budget:r.budget,typeRecherche:r.type_recherche,secteur:r.secteur,delai:r.delai||'',notes:r.notes,rappel:r.rappel||'',createdAt:r.created_at}; }
+function dbToContact(r){ return {id:r.id,auto:false,role:r.role,nom:r.nom,tel:r.tel,email:r.email,age:r.age,budget:r.budget,typeRecherche:r.type_recherche,secteur:r.secteur,delai:r.delai||'',notes:r.notes,rappel:r.rappel||'',createdAt:r.created_at,lastContactAt:r.last_contact_at||null}; }
 
 function getAllContacts(){
   return state.contacts;
@@ -2473,6 +2473,19 @@ function showContactDetail(contactId){
           ${contact.email?'<span>✉ '+contact.email+'</span>':''}
           ${contact.age?'<span>'+contact.age+'</span>':''}
         </div>
+        ${(()=>{
+          const visites = state.visites.filter(v=>v.visiteur===contact.nom||v.email===contact.email);
+          const lastVisite = visites.length ? new Date(Math.max(...visites.map(v=>new Date(v.savedAt||v.date)))) : null;
+          const lastMsg = contact.lastContactAt ? new Date(contact.lastContactAt) : null;
+          const lastDate = [lastVisite, lastMsg].filter(Boolean).reduce((a,b)=>a>b?a:b, null);
+          if(!lastDate) return '<div style="margin-top:8px;font-size:12px;padding:6px 12px;background:var(--warn-light);border:1px solid rgba(180,83,9,0.15);border-radius:20px;color:var(--warn);display:inline-flex;align-items:center;gap:6px">⚠️ Jamais contacté</div>';
+          const jours = Math.floor((new Date()-lastDate)/86400000);
+          const type = lastMsg && (!lastVisite || lastMsg > lastVisite) ? '💬 Message envoyé' : '📋 Dernière visite';
+          const color = jours > 14 ? 'var(--warn)' : 'var(--success)';
+          const bg = jours > 14 ? 'var(--warn-light)' : 'var(--success-light)';
+          const border = jours > 14 ? 'rgba(180,83,9,0.15)' : 'rgba(21,128,61,0.15)';
+          return '<div style="margin-top:8px;font-size:12px;padding:6px 12px;background:'+bg+';border:1px solid '+border+';border-radius:20px;color:'+color+';display:inline-flex;align-items:center;gap:6px">'+type+' · '+(jours===0?'aujourd\'hui':jours===1?'hier':'il y a '+jours+' jours')+'</div>';
+        })()}
       </div>
     </div>
     <div class="info-grid">
@@ -2653,9 +2666,9 @@ function renderAlertes() {
   // Acheteurs sans nouvelle depuis X jours
   state.contacts.filter(c=>c.role==='acheteur').forEach(c=>{
     const visites = state.visites.filter(v=>v.visiteur===c.nom||v.email===c.email);
-    const lastDate = visites.length
-      ? new Date(Math.max(...visites.map(v=>new Date(v.savedAt||v.date))))
-      : new Date(c.createdAt);
+    const lastVisite = visites.length ? new Date(Math.max(...visites.map(v=>new Date(v.savedAt||v.date)))) : null;
+    const lastMessage = c.lastContactAt ? new Date(c.lastContactAt) : null;
+    const lastDate = [lastVisite, lastMessage, new Date(c.createdAt)].filter(Boolean).reduce((a,b)=>a>b?a:b);
     const jours = Math.floor((now - lastDate) / 86400000);
     if(jours >= SEUIL_CONTACT) alertes.push({
       type:'acheteur', label: c.nom, jours,
@@ -2821,6 +2834,16 @@ Réponds UNIQUEMENT avec le texte du message, sans commentaire ni explication.`;
     const txt = data.content[0].text.trim();
     document.getElementById('rassurer-output-text').textContent = txt;
     rassurerState.generatedText = txt;
+    // Mettre à jour last_contact_at sur le contact
+    const contactRas = state.contacts.find(c=>c.nom===rassurerState.nom);
+    if(contactRas) {
+      const now = new Date().toISOString();
+      await supa.from('contacts').update({last_contact_at: now}).eq('id', contactRas.id);
+      contactRas.lastContactAt = now;
+      // Refresh alertes si on est sur le dashboard
+      const alertesEl = document.getElementById('dashboard-alertes');
+      if(alertesEl) renderAlertes();
+    }
   } catch(e) {
     document.getElementById('rassurer-output-text').textContent = '❌ Erreur de génération. Réessayez.';
   }
