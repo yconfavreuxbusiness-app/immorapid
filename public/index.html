@@ -1306,8 +1306,12 @@ textarea.form-input { resize:vertical; min-height:84px; }
     <div class="modal-header"><div class="modal-title">Nouveau compte-rendu</div><button class="modal-close" onclick="closeModal('modal-cr')">✕</button></div>
     <div id="cr-form-section">
       <div class="form-group">
-        <label class="form-label">Rattacher à un bien</label>
-        <select class="form-input" id="cr-bien-select"><option value="">— Aucun bien sélectionné —</option></select>
+        <label class="form-label">Rattacher à un bien <span class="req">*</span></label>
+        <select class="form-input" id="cr-bien-select" onchange="checkBienSelect(this)"><option value="">— Sélectionnez un bien —</option></select>
+        <div id="cr-bien-warning" style="display:none;margin-top:8px;padding:10px 14px;background:var(--warn-light);border:1px solid rgba(180,83,9,0.2);border-radius:var(--r-sm);font-size:12px;color:var(--warn);display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <span>⚠️ Sans bien rattaché, le CR sera moins précis.</span>
+          <button type="button" class="btn btn-ghost" style="font-size:11px;padding:5px 10px;flex-shrink:0" onclick="closeModal('modal-cr');openModalBien()">+ Créer un bien</button>
+        </div>
       </div>
       <div class="divider"></div>
       <div class="form-section-title">Acheteur</div>
@@ -1391,9 +1395,10 @@ textarea.form-input { resize:vertical; min-height:84px; }
     <div id="cr-output-section" style="display:none">
       <div class="cr-output">
         <div class="cr-tabs">
-          <button class="cr-tab active" onclick="switchCRTab('email',this)">📧 Email vendeur</button>
+          <button class="cr-tab active" onclick="switchCRTab('email',this)">📧 Vendeur</button>
+          <button class="cr-tab" onclick="switchCRTab('acheteur',this)">🤝 Acheteur</button>
           <button class="cr-tab" onclick="switchCRTab('pdf',this)">📄 CR complet</button>
-          <button class="cr-tab" onclick="switchCRTab('court',this)">💬 Version courte</button>
+          <button class="cr-tab" onclick="switchCRTab('court',this)">💬 WhatsApp</button>
         </div>
         <div class="cr-body" id="cr-output-text"></div>
         <div class="cr-actions">
@@ -1826,7 +1831,7 @@ async function loadAll() {
   state.historique = (h.data||[]);
 }
 function dbToBien(r){ return {id:r.id,type:r.type,adresse:r.adresse,prix:r.prix,surface:r.surface,pieces:r.pieces,vendeur:r.vendeur,vendeurTel:r.vendeur_tel,vendeurEmail:r.vendeur_email,notes:r.notes,statut:r.statut||'actif',createdAt:r.created_at}; }
-function dbToVisite(r){ return {id:r.id,bienId:r.bien_id,visiteur:r.visiteur,tel:r.tel,email:r.email,age:r.age,budget:r.budget,typeRecherche:r.type_recherche,secteur:r.secteur,date:r.date,interest:r.interest,delai:r.delai||'',impressions:r.impressions,notes:r.notes||'',rappel:r.rappel||'',cr:{email:r.cr_email,pdf:r.cr_pdf,court:r.cr_court},savedAt:r.saved_at}; }
+function dbToVisite(r){ return {id:r.id,bienId:r.bien_id,visiteur:r.visiteur,tel:r.tel,email:r.email,age:r.age,budget:r.budget,typeRecherche:r.type_recherche,secteur:r.secteur,date:r.date,interest:r.interest,delai:r.delai||'',impressions:r.impressions,notes:r.notes||'',rappel:r.rappel||'',cr:{email:r.cr_email,pdf:r.cr_pdf,court:r.cr_court,acheteur:r.cr_acheteur||''},savedAt:r.saved_at}; }
 function dbToContact(r){ return {id:r.id,auto:false,role:r.role,nom:r.nom,tel:r.tel,email:r.email,age:r.age,budget:r.budget,typeRecherche:r.type_recherche,secteur:r.secteur,delai:r.delai||'',notes:r.notes,rappel:r.rappel||'',createdAt:r.created_at}; }
 
 function getAllContacts(){
@@ -2112,6 +2117,12 @@ function openModalCR(bienId){
   getAllContacts().filter(c=>c.role==='acheteur').forEach(c=>{ const o=document.createElement('option'); o.value=c.id; o.textContent=c.nom+(c.budget?' · '+c.budget:''); csel.appendChild(o); });
   openModal('modal-cr');
 }
+function checkBienSelect(sel){
+  const warn = document.getElementById('cr-bien-warning');
+  if(!sel.value) { warn.style.display='flex'; }
+  else { warn.style.display='none'; }
+}
+
 function prefillFromContact(contactId){
   if(!contactId) return;
   const c = getAllContacts().find(c=>c.id===contactId);
@@ -2152,16 +2163,27 @@ async function genererCR(){
   document.getElementById('cr-output-text').innerHTML = `<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div> Génération en cours...</div>`;
   currentCRTab = 'email';
   document.querySelectorAll('#modal-cr .cr-tab').forEach((t,i)=>t.classList.toggle('active',i===0));
-  const bienInfo = bien ? `Bien : ${bien.type} au ${bien.adresse}, ${bien.surface||'?'}m², ${bien.pieces||'?'} pièces, prix ${bien.prix||'?'}. Vendeur : ${bien.vendeur||'non précisé'}.` : 'Bien non précisé.';
+  const bienInfo = bien
+    ? `Bien visité : ${bien.type}, ${bien.adresse}${bien.surface?' — '+bien.surface+'m²':''}${bien.pieces?' — '+bien.pieces+' pièces':''}${bien.prix?' — '+bien.prix:''}.${bien.vendeur?' Vendeur : '+bien.vendeur+'.':''}`
+    : 'Bien non précisé (ne pas inventer de caractéristiques).';
   const prompt = `Tu es un assistant pour agents immobiliers français. Génère un compte-rendu de visite professionnel.
+
+RÈGLE ABSOLUE : N'invente AUCUNE information. Utilise UNIQUEMENT les données fournies ci-dessous. Si une donnée est absente ou marquée "non précisé", ne la mentionne pas ou écris "non précisé". Ne suppose jamais une surface, un nombre de pièces, un prix, une situation familiale ou tout autre détail non fourni.
+
 ${bienInfo}
 Visiteur : ${pendingCR.visiteur}${pendingCR.age?' ('+pendingCR.age+')':''}
 Budget : ${pendingCR.budget||'non précisé'} — Type recherché : ${pendingCR.typeRecherche||'non précisé'} — Délai : ${DELAI_LABELS[pendingCR.delai]||'non précisé'}
 Date : ${pendingCR.date} — Intérêt : ${pendingCR.interest==='high'?'Très intéressé':pendingCR.interest==='med'?'Intéressé':'Peu intéressé'}
-Impressions : ${pendingCR.impressions}
+Impressions de l'agent : ${pendingCR.impressions}
 
-Réponds UNIQUEMENT avec ce JSON valide sans backticks :
-{"email":"Email complet avec Objet: en 1ère ligne, corps pro et chaleureux","pdf":"CR structuré : Informations visite / Profil visiteur / Points positifs / Points d'attention / Prochaines étapes","court":"Version courte 3-4 lignes pour WhatsApp/SMS au vendeur"}`;
+Génère 4 versions basées STRICTEMENT sur ces informations :
+1. email_vendeur : Email pro au vendeur, objet en 1ère ligne (format "Objet: ..."), ton chaleureux, sans inventer de détails
+2. email_acheteur : Email ou message de suivi à l'acheteur après la visite, ton pro et bienveillant, sans inventer
+3. cr_complet : CR structuré avec sections : Informations visite / Profil acheteur / Points positifs / Points d'attention / Prochaines étapes. Uniquement les infos fournies.
+4. whatsapp : Message court 3-4 lignes pour WhatsApp/SMS au vendeur
+
+Réponds UNIQUEMENT avec ce JSON valide sans backticks ni markdown :
+{"email":"...","acheteur":"...","pdf":"...","court":"..."}`;
   try {
     const res = await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt})});
     const data = await res.json();
@@ -2189,7 +2211,7 @@ async function sauvegarderCR(){
     secteur: pendingCR.secteur, date: pendingCR.date, interest: pendingCR.interest,
     delai: pendingCR.delai||null, impressions: pendingCR.impressions,
     notes: pendingCR.notes||'', rappel: pendingCR.rappel||null,
-    cr_email: generatedCR.email||'', cr_pdf: generatedCR.pdf||'', cr_court: generatedCR.court||''
+    cr_email: generatedCR.email||'', cr_pdf: generatedCR.pdf||'', cr_court: generatedCR.court||'', cr_acheteur: generatedCR.acheteur||''
   };
   const {data,error} = await supa.from('visites').insert(visite).select().single();
   if(error){ showToast('Erreur : '+error.message); return; }
@@ -2425,9 +2447,10 @@ function showCR(visitId, bienId){
     </div>
     <div class="cr-output">
       <div class="cr-tabs">
-        <button class="cr-tab active" onclick="switchCRTabDetail('email',this,'${visitId}')">📧 Email vendeur</button>
+        <button class="cr-tab active" onclick="switchCRTabDetail('email',this,'${visitId}')">📧 Vendeur</button>
+        <button class="cr-tab" onclick="switchCRTabDetail('acheteur',this,'${visitId}')">🤝 Acheteur</button>
         <button class="cr-tab" onclick="switchCRTabDetail('pdf',this,'${visitId}')">📄 CR complet</button>
-        <button class="cr-tab" onclick="switchCRTabDetail('court',this,'${visitId}')">💬 Version courte</button>
+        <button class="cr-tab" onclick="switchCRTabDetail('court',this,'${visitId}')">💬 WhatsApp</button>
       </div>
       <div class="cr-body" id="cr-detail-body">${visite.cr?.email||'—'}</div>
       <div class="cr-actions">
