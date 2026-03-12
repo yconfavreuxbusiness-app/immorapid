@@ -621,6 +621,8 @@ textarea.form-input { resize:vertical; min-height:84px; }
 /* MOBILE ACTIONS — caché sur desktop, visible mobile via media query */
 .mobile-actions { display:none; }
 
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
 /* SCROLLBAR */
 ::-webkit-scrollbar { width:4px; }
 ::-webkit-scrollbar-track { background:transparent; }
@@ -869,69 +871,112 @@ textarea.form-input { resize:vertical; min-height:84px; }
 <nav class="l-nav">
   <a href="#" class="l-logo">Immo<span>Rapid</span></a>
   <div class="l-links">
+    <a href="#pourquoi">Pourquoi ImmoRapid</a>
     <a href="#comment">Comment ça marche</a>
     <a href="#tarifs">Tarifs</a>
     <button class="l-btn" onclick="showAuth()">Tester gratuitement</button>
   </div>
 </nav>
+
+<!-- HERO -->
 <section class="l-hero">
   <div class="l-badge">Pour agents immobiliers</div>
-  <h1>Vos comptes-rendus<br>de visite, <em>en 30 secondes.</em></h1>
-  <p class="l-sub">Finissez une visite. Tapez 3 phrases. ImmoRapid génère un compte-rendu professionnel prêt à envoyer au vendeur.</p>
+  <h1>Votre logiciel gère vos mandats.<br><em>ImmoRapid gère votre relation client.</em></h1>
+  <p class="l-sub">CR vendeur, suivi acheteur, relances — tout ce que vous savez que vous devriez faire, fait en 30 secondes. Les agents qui restent en contact permanent avec leurs clients signent plus. Beaucoup plus.</p>
   <div class="l-cta">
     <button class="l-btn-primary" onclick="showAuth()">Tester gratuitement →</button>
   </div>
   <div class="l-launch">🎉 Gratuit pendant le lancement — 9€/mois ensuite, sans engagement</div>
 </section>
-<section class="l-section" id="probleme">
-  <div class="l-label">Le problème</div>
-  <div class="l-title">Ce que vous faites après chaque visite, en vrai.</div>
+
+<!-- POURQUOI -->
+<section class="l-section" id="pourquoi">
+  <div class="l-label">Le manque à gagner</div>
+  <div class="l-title">Ce qui se perd quand vous ne donnez pas de nouvelles.</div>
   <div class="l-problem-grid">
-    <div class="l-problem-card"><p><strong>Vous oubliez les détails.</strong> Entre la visite et le soir, la moitié des infos importantes s'évaporent.</p></div>
-    <div class="l-problem-card"><p><strong>Vous procrastinez.</strong> Rédiger un CR complet prend 20 minutes — alors vous reportez.</p></div>
-    <div class="l-problem-card"><p><strong>Le vendeur s'impatiente.</strong> Il veut des nouvelles. Vous n'avez rien à lui envoyer.</p></div>
-    <div class="l-problem-card"><p><strong>Vos CR manquent de pro.</strong> Un message rapide sur WhatsApp, c'est pas ce qu'attend un mandant.</p></div>
+    <div class="l-problem-card"><p><strong>Le vendeur perd confiance.</strong> Pas de nouvelles = il appelle une autre agence. Vous perdez le mandat que vous aviez déjà.</p></div>
+    <div class="l-problem-card"><p><strong>L'acheteur s'échappe.</strong> Il achète avec l'agent qui l'a recontacté en premier. Pas forcément le meilleur — juste le plus réactif.</p></div>
+    <div class="l-problem-card"><p><strong>Zéro recommandation.</strong> Un client bien suivi vous envoie ses amis. Un client oublié ne parle jamais de vous.</p></div>
+    <div class="l-problem-card"><p><strong>Votre image souffre.</strong> Dans l'immo, la réputation se bâtit sur la relation. Un suivi négligé, ça se sait.</p></div>
   </div>
 </section>
-<section class="l-section-dark" id="comment">
+
+<!-- CE QU'ON FAIT -->
+<section class="l-section-dark" id="comment" style="padding:80px 40px">
+  <div class="l-label" style="color:rgba(201,169,110,0.8)">Ce qu'ImmoRapid fait pour vous</div>
+  <div class="l-title" style="color:white;margin-bottom:48px">Trois douleurs. Une solution. 9€/mois.</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:960px;margin:0 auto">
+    <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:28px">
+      <div style="font-size:28px;margin-bottom:16px">📋</div>
+      <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:white;margin-bottom:10px">Compte-rendu en 30 secondes</div>
+      <p style="color:rgba(255,255,255,0.6);font-size:14px;line-height:1.7">Tapez vos impressions en vrac. L'IA génère un email pro au vendeur ET un message de suivi à l'acheteur. Vous copiez-collez. C'est tout.</p>
+    </div>
+    <div style="background:rgba(201,169,110,0.1);border:1px solid rgba(201,169,110,0.25);border-radius:16px;padding:28px">
+      <div style="font-size:28px;margin-bottom:16px">🤝</div>
+      <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:white;margin-bottom:10px">Suivi acheteur & vendeur</div>
+      <p style="color:rgba(255,255,255,0.6);font-size:14px;line-height:1.7">Chaque client a une fiche. Ses critères, son budget, son projet. ImmoRapid sait qui cherche quoi — et vous suggère les bons biens aux bons acheteurs.</p>
+    </div>
+    <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:28px">
+      <div style="font-size:28px;margin-bottom:16px">🔔</div>
+      <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:white;margin-bottom:10px">Alertes de relance</div>
+      <p style="color:rgba(255,255,255,0.6);font-size:14px;line-height:1.7">Un acheteur sans nouvelles depuis 2 semaines ? Un bien sans visite depuis 3 semaines ? ImmoRapid vous alerte et génère le message de réassurance en un clic.</p>
+    </div>
+  </div>
+</section>
+
+<!-- BÉNÉFICE CENTRAL -->
+<section class="l-section" style="text-align:center;background:var(--accent-light);border-top:1px solid var(--accent-border);border-bottom:1px solid var(--accent-border)">
+  <div style="max-width:680px;margin:0 auto">
+    <div style="font-size:40px;margin-bottom:20px">✦</div>
+    <div style="font-family:'Fraunces',serif;font-size:32px;font-weight:700;line-height:1.3;color:var(--text-1);margin-bottom:16px">Les agents qui donnent des nouvelles<br>signent plus de mandats.</div>
+    <p style="font-size:17px;color:var(--text-2);line-height:1.7;margin-bottom:0">Pas parce qu'ils sont meilleurs. Parce que leurs clients leur font confiance. ImmoRapid vous donne les outils pour être cet agent — sans y passer vos soirées.</p>
+  </div>
+</section>
+
+<!-- COMMENT ÇA MARCHE -->
+<section class="l-section">
   <div class="l-label">Comment ça marche</div>
-  <div class="l-title" style="color:white">Quatre étapes, trente secondes.</div>
+  <div class="l-title">Simple comme un SMS.</div>
   <div class="l-steps">
-    <div class="l-step"><div class="l-step-num">01</div><h3>Entrez le bien</h3><p>Adresse, type, prix, infos vendeur. Une fois pour toutes.</p></div>
-    <div class="l-step"><div class="l-step-num">02</div><h3>Tapez vos impressions</h3><p>En vrac, comme vous le sentez. Pas besoin de structure.</p></div>
-    <div class="l-step"><div class="l-step-num">03</div><h3>L'IA génère</h3><p>Un CR complet, professionnel et personnalisé en quelques secondes.</p></div>
-    <div class="l-step"><div class="l-step-num">04</div><h3>Envoyez</h3><p>Email prêt, PDF téléchargeable, ou texte WhatsApp. Vous choisissez.</p></div>
+    <div class="l-step"><div class="l-step-num">01</div><h3>Créez la fiche du bien</h3><p>Adresse, prix, vendeur. Une fois pour toutes. 30 secondes.</p></div>
+    <div class="l-step"><div class="l-step-num">02</div><h3>Tapez vos impressions</h3><p>En vrac, comme vous le dites à voix haute. Pas besoin de structure.</p></div>
+    <div class="l-step"><div class="l-step-num">03</div><h3>L'IA rédige tout</h3><p>Email vendeur, message acheteur, CR complet, version WhatsApp. Tout en une fois.</p></div>
+    <div class="l-step"><div class="l-step-num">04</div><h3>Envoyez & fidélisez</h3><p>Vos clients reçoivent un vrai suivi pro. Ils s'en souviennent. Ils vous recommandent.</p></div>
   </div>
 </section>
+
+<!-- TARIFS -->
 <section class="l-section" id="tarifs" style="text-align:center">
   <div class="l-label">Tarifs</div>
-  <div class="l-title" style="max-width:100%">Simple. Prévisible. Sans engagement.</div>
+  <div class="l-title" style="max-width:100%">Moins cher qu'un café par semaine.</div>
   <div class="l-pricing-card">
     <div class="l-pricing-badge">🎉 Lancement gratuit</div>
-    <div style="font-family:'Clash Display',sans-serif;font-size:16px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:8px">Starter</div>
+    <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:600;margin-bottom:8px">Starter</div>
     <div class="l-price"><sup>€</sup>9<sub>/mois</sub></div>
-    <div style="font-size:13px;color:var(--accent);font-weight:500;margin:8px 0 12px">Gratuit pendant le lancement</div>
+    <div style="font-size:13px;color:var(--accent);font-weight:500;margin:8px 0 20px">Gratuit pendant le lancement</div>
     <ul class="l-features">
-      <li>Comptes-rendus de visite illimités</li>
-      <li>3 formats (email vendeur, PDF, WhatsApp)</li>
-      <li>Gestion de vos biens</li>
-      <li>Contacts acheteurs &amp; vendeurs</li>
-      <li>Matching acheteurs / biens</li>
+      <li>✓ Comptes-rendus IA illimités</li>
+      <li>✓ Email vendeur + suivi acheteur</li>
+      <li>✓ Alertes de relance automatiques</li>
+      <li>✓ Gestion biens & contacts</li>
+      <li>✓ Export CSV de vos contacts</li>
+      <li>✓ Accès desktop & mobile</li>
     </ul>
-    <button class="l-btn-plan" onclick="showAuth()">Commencer gratuitement</button>
+    <button class="l-btn-primary" style="width:100%;justify-content:center" onclick="showAuth()">Commencer gratuitement →</button>
+    <div style="font-size:12px;color:var(--text-3);margin-top:12px">Sans engagement · Résiliable à tout moment</div>
   </div>
 </section>
-<footer>
-  <a href="#" class="l-logo" style="color:white">Immo<span>Rapid</span></a>
-  <p>© 2026 ImmoRapid · Fait pour les agents immobiliers français</p>
-  <p style="display:flex;gap:16px;flex-wrap:wrap">
-  <a href="#" onclick="event.preventDefault();showLegalModal('mentions')" style="color:rgba(255,255,255,0.45);text-decoration:none;font-size:13px;transition:color 0.15s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Mentions légales</a>
-  <a href="#" onclick="event.preventDefault();showLegalModal('cgv')" style="color:rgba(255,255,255,0.45);text-decoration:none;font-size:13px;transition:color 0.15s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">CGV</a>
-  <a href="#" onclick="event.preventDefault();showLegalModal('confidentialite')" style="color:rgba(255,255,255,0.45);text-decoration:none;font-size:13px;transition:color 0.15s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Confidentialité</a>
-  <a href="#" onclick="event.preventDefault();showLegalModal('confidentialite')" style="color:rgba(255,255,255,0.45);text-decoration:none;font-size:13px;transition:color 0.15s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">RGPD</a>
-</p>
+
+<!-- FOOTER -->
+<footer style="background:var(--sidebar-bg);padding:40px 52px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+  <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:white">Immo<span style="color:var(--accent)">Rapid</span></div>
+  <div style="display:flex;gap:24px;flex-wrap:wrap">
+    <a href="#" onclick="return showLegalModal('mentions')" style="font-size:12px;color:rgba(255,255,255,0.3);text-decoration:none" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.3)'">Mentions légales</a>
+    <a href="#" onclick="return showLegalModal('cgv')" style="font-size:12px;color:rgba(255,255,255,0.3);text-decoration:none" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.3)'">CGV</a>
+    <a href="#" onclick="return showLegalModal('confidentialite')" style="font-size:12px;color:rgba(255,255,255,0.3);text-decoration:none" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.3)'">RGPD</a>
+  </div>
+  <div style="font-size:12px;color:rgba(255,255,255,0.25)">contact@immorapid.app</div>
 </footer>
-</div>
 
 <!-- ══════════════════════════════════════
      AUTH
@@ -1028,6 +1073,7 @@ textarea.form-input { resize:vertical; min-height:84px; }
             <div class="stat-card"><div class="stat-label">CONTACTS</div><div class="stat-value" id="stat-contacts">0</div><div class="stat-sub">acheteurs &amp; vendeurs</div><span class="stat-accent"></span></div>
             <div class="stat-card"><div class="stat-label">CE MOIS</div><div class="stat-value" id="stat-mois">0</div><div class="stat-sub">nouvelles visites</div><span class="stat-accent"></span></div>
           </div>
+          <div id="dashboard-alertes"></div>
           <div class="section-header"><div class="section-title">Dernières visites</div><button class="btn btn-ghost" onclick="showView('visites',document.querySelectorAll('.nav-item')[2])">Voir tout</button></div>
           <div id="dashboard-visites"></div>
           <div class="section-header" style="margin-top:32px"><div class="section-title">Biens récents</div><button class="btn btn-ghost" onclick="showView('biens',document.querySelectorAll('.nav-item')[1])">Voir tout</button></div>
@@ -1088,6 +1134,48 @@ textarea.form-input { resize:vertical; min-height:84px; }
     <div class="onboarding-footer">
       <button class="onboarding-skip" onclick="closeOnboarding()">Passer</button>
       <button class="onboarding-next" id="ob-next-btn" onclick="nextOnboardingStep()">Suivant →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MODAL — RASSURER CONTACT
+══════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-rassurer">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <div class="modal-title" id="rassurer-title">Message de réassurance</div>
+      <button class="modal-close" onclick="closeModal('modal-rassurer')">✕</button>
+    </div>
+    <div id="rassurer-form">
+      <div class="form-group">
+        <label class="form-label" id="rassurer-context-label">Contexte</label>
+        <div id="rassurer-context-info" style="padding:12px 14px;background:var(--accent-light);border:1px solid var(--accent-border);border-radius:var(--r-sm);font-size:13px;color:var(--text-2);margin-bottom:4px"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ajouter un message personnalisé <span style="font-weight:400;color:var(--text-3)">(optionnel)</span></label>
+        <textarea class="form-input" id="rassurer-note" style="min-height:70px" placeholder="Ex: une visite est prévue la semaine prochaine, j'ai pensé à votre budget pour un bien qui vient de rentrer..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Format</label>
+        <div style="display:flex;gap:8px">
+          <button class="filter-btn active" id="rassurer-fmt-email" onclick="setRassurerFormat('email',this)">📧 Email</button>
+          <button class="filter-btn" id="rassurer-fmt-sms" onclick="setRassurerFormat('sms',this)">💬 SMS / WhatsApp</button>
+        </div>
+      </div>
+      <div class="modal-footer" style="margin-top:4px">
+        <button class="btn btn-ghost" onclick="closeModal('modal-rassurer')">Annuler</button>
+        <button class="btn btn-primary" onclick="genererRassurer()">✦ Générer le message</button>
+      </div>
+    </div>
+    <div id="rassurer-output" style="display:none">
+      <div class="cr-output" style="margin:0">
+        <div class="cr-body" id="rassurer-output-text" style="white-space:pre-wrap"></div>
+        <div class="cr-actions">
+          <button class="btn btn-ghost" onclick="copierRassurer()">📋 Copier</button>
+          <button class="btn btn-ghost" onclick="document.getElementById('rassurer-form').style.display='block';document.getElementById('rassurer-output').style.display='none'">← Modifier</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -2185,11 +2273,12 @@ Budget : ${pendingCR.budget||'non précisé'} — Type recherché : ${pendingCR.
 Date : ${pendingCR.date} — Intérêt : ${pendingCR.interest==='high'?'Très intéressé':pendingCR.interest==='med'?'Intéressé':'Peu intéressé'}
 Impressions de l'agent : ${pendingCR.impressions}
 
-Génère 4 versions basées STRICTEMENT sur ces informations :
-1. email_vendeur : Email pro au vendeur, objet en 1ère ligne (format "Objet: ..."), ton chaleureux, sans inventer de détails
-2. email_acheteur : Email ou message de suivi à l'acheteur après la visite, ton pro et bienveillant, sans inventer
-3. cr_complet : CR structuré avec sections : Informations visite / Profil acheteur / Points positifs / Points d'attention / Prochaines étapes. Uniquement les infos fournies.
-4. whatsapp : Message court 3-4 lignes pour WhatsApp/SMS au vendeur
+Génère 4 versions basées STRICTEMENT sur ces informations. Ton général : chaleureux, professionnel, humain. L'agent immobilier est un partenaire de confiance, pas juste un intermédiaire.
+
+1. email_vendeur : Email au vendeur. Objet en 1ère ligne (format "Objet: ..."). Rassure-le : l'agent est mobilisé pour lui, continue activement à chercher le bon acheteur, lui apporte de la transparence sur l'intérêt du visiteur. Termine par un engagement concret (prochain retour, prochaine action).
+2. email_acheteur : Message de suivi à l'acheteur. Ton accompagnant et bienveillant. Remercie-le pour la visite, montre que l'agent a bien noté ses critères et attentes, et assure-le qu'il sera recontacté dès qu'un bien correspondant à son projet apparaît. L'acheteur doit se sentir suivi et pas oublié.
+3. cr_complet : CR structuré interne de l'agent avec sections : Informations visite / Profil acheteur / Points positifs / Points d'attention / Prochaines étapes recommandées. Uniquement les infos fournies.
+4. whatsapp : Version courte 3-4 lignes pour WhatsApp/SMS au vendeur. Même ton rassurant, synthétique.
 
 Réponds UNIQUEMENT avec ce JSON valide sans backticks ni markdown :
 {"email":"...","acheteur":"...","pdf":"...","court":"..."}`;
@@ -2520,6 +2609,186 @@ function renderDashboard(){
   const rb = state.biens.filter(b=>b.statut!=='vendu').slice(0,3);
   document.getElementById('dashboard-biens').innerHTML = !rb.length ? emptyState('🏠','Aucun bien','Ajoutez votre premier bien.') :
     rb.map(b=>bienCard(b)).join('');
+  renderAlertes();
+}
+
+function renderAlertes() {
+  const now = new Date();
+  const SEUIL_CONTACT = 14; // jours sans visite pour un contact acheteur
+  const SEUIL_BIEN = 21;    // jours sans visite pour un bien actif
+  const alertes = [];
+
+  // Acheteurs sans nouvelle depuis X jours
+  state.contacts.filter(c=>c.role==='acheteur').forEach(c=>{
+    const visites = state.visites.filter(v=>v.visiteur===c.nom||v.email===c.email);
+    const lastDate = visites.length
+      ? new Date(Math.max(...visites.map(v=>new Date(v.savedAt||v.date))))
+      : new Date(c.createdAt);
+    const jours = Math.floor((now - lastDate) / 86400000);
+    if(jours >= SEUIL_CONTACT) alertes.push({
+      type:'acheteur', label: c.nom, jours,
+      action: ()=>openModalCR(null),
+      actionLabel: '✦ Générer un message de suivi',
+      desc: `Acheteur · Pas de contact depuis ${jours} jour${jours>1?'s':''}`
+    });
+  });
+
+  // Biens actifs sans visite depuis X jours
+  state.biens.filter(b=>b.statut==='actif').forEach(b=>{
+    const visites = state.visites.filter(v=>v.bienId===b.id);
+    const lastDate = visites.length
+      ? new Date(Math.max(...visites.map(v=>new Date(v.savedAt||v.date))))
+      : new Date(b.createdAt);
+    const jours = Math.floor((now - lastDate) / 86400000);
+    if(jours >= SEUIL_BIEN) alertes.push({
+      type:'bien', label: b.adresse, jours,
+      bienId: b.id,
+      action: ()=>openModalCR(b.id),
+      actionLabel: '+ Nouvelle visite',
+      desc: `Bien actif · Aucune visite depuis ${jours} jour${jours>1?'s':''}`
+    });
+  });
+
+  const el = document.getElementById('dashboard-alertes');
+  if(!alertes.length){ el.innerHTML=''; return; }
+
+  alertes.sort((a,b)=>b.jours-a.jours);
+
+  el.innerHTML = `
+    <div style="margin-bottom:24px">
+      <div class="section-header" style="margin-bottom:12px">
+        <div class="section-title" style="display:flex;align-items:center;gap:8px">
+          <span style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;animation:pulse 2s infinite"></span>
+          À relancer (${alertes.length})
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${alertes.slice(0,5).map(a=>`
+          <div style="background:white;border:1px solid var(--border);border-left:3px solid ${a.type==='acheteur'?'var(--accent)':'#3b82f6'};border-radius:var(--r-md);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+            <div>
+              <div style="font-weight:600;font-size:14px;margin-bottom:2px">${a.label}</div>
+              <div style="font-size:12px;color:var(--text-2)">${a.desc}</div>
+            </div>
+            <button class="btn btn-primary" style="font-size:12px;padding:7px 14px;flex-shrink:0"
+              onclick="ouvrirRassurer('${a.type}','${encodeURIComponent(a.label)}','${a.jours}','${encodeURIComponent(a.desc)}','${a.bienId||''}')">
+              ${a.type==='acheteur'?"💬 Rassurer l'acheteur":'🏠 Rassurer le vendeur'}
+            </button>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ── RASSURER ──
+let rassurerState = {};
+let rassurerFormat = 'email';
+
+function setRassurerFormat(fmt, btn) {
+  rassurerFormat = fmt;
+  document.querySelectorAll('#modal-rassurer .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function ouvrirRassurer(type, nomEnc, jours, descEnc, bienId) {
+  const nom = decodeURIComponent(nomEnc);
+  const desc = decodeURIComponent(descEnc);
+  rassurerState = { type, nom, jours, desc, bienId };
+  rassurerFormat = 'email';
+  document.getElementById('rassurer-fmt-email').classList.add('active');
+  document.getElementById('rassurer-fmt-sms').classList.remove('active');
+  document.getElementById('rassurer-form').style.display = 'block';
+  document.getElementById('rassurer-output').style.display = 'none';
+  document.getElementById('rassurer-note').value = '';
+  document.getElementById('rassurer-output-text').textContent = '';
+
+  const bien = bienId ? state.biens.find(b=>b.id===bienId) : null;
+  const contact = state.contacts.find(c=>c.nom===nom);
+
+  if(type==='acheteur') {
+    document.getElementById('rassurer-title').textContent = "💬 Rassurer l'acheteur";
+    document.getElementById('rassurer-context-label').textContent = 'Acheteur concerné';
+    document.getElementById('rassurer-context-info').innerHTML =
+      `<strong>${nom}</strong> — pas de contact depuis <strong>${jours} jour${jours>1?'s':''}</strong>`
+      + (contact?.budget ? ` · Budget : ${contact.budget}` : '')
+      + (contact?.typeRecherche ? ` · Recherche : ${contact.typeRecherche}` : '')
+      + (contact?.secteur ? ` · Secteur : ${contact.secteur}` : '');
+  } else {
+    document.getElementById('rassurer-title').textContent = '🏠 Rassurer le vendeur';
+    document.getElementById('rassurer-context-label').textContent = 'Bien concerné';
+    document.getElementById('rassurer-context-info').innerHTML =
+      bien ? `<strong>${bien.adresse}</strong> (${bien.type}${bien.prix?' · '+bien.prix:''}) — aucune visite depuis <strong>${jours} jour${jours>1?'s':''}</strong>`
+           : `Bien sans visite depuis <strong>${jours} jour${jours>1?'s':''}</strong>`;
+  }
+  openModal('modal-rassurer');
+}
+
+async function genererRassurer() {
+  const { type, nom, jours, bienId } = rassurerState;
+  const note = document.getElementById('rassurer-note').value.trim();
+  const bien = bienId ? state.biens.find(b=>b.id===bienId) : null;
+  const contact = state.contacts.find(c=>c.nom===nom);
+
+  document.getElementById('rassurer-form').style.display = 'none';
+  document.getElementById('rassurer-output').style.display = 'block';
+  document.getElementById('rassurer-output-text').innerHTML = `<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div> Génération en cours...</div>`;
+
+  let prompt = '';
+  if(type === 'acheteur') {
+    prompt = `Tu es un assistant pour agents immobiliers français. Génère un message de réassurance pour un acheteur.
+
+RÈGLE ABSOLUE : N'invente aucune information. Utilise uniquement les données fournies.
+
+Acheteur : ${nom}
+Délai sans contact : ${jours} jours
+${contact?.budget ? 'Budget : '+contact.budget : ''}
+${contact?.typeRecherche ? 'Type recherché : '+contact.typeRecherche : ''}
+${contact?.secteur ? 'Secteur souhaité : '+contact.secteur : ''}
+${note ? 'Message personnalisé de l\'agent : '+note : ''}
+
+Format demandé : ${rassurerFormat === 'email' ? 'Email (inclure Objet: en 1ère ligne)' : 'SMS/WhatsApp court (3-5 lignes max)'}
+
+Génère un message chaleureux et professionnel qui :
+- Montre que l'agent pense à lui et suit activement son projet
+- L'assure qu'il sera recontacté dès qu'un bien correspondant apparaît
+- Donne envie de rester en contact avec cet agent
+- Ton humain, pas un template froid
+
+Réponds UNIQUEMENT avec le texte du message, sans commentaire ni explication.`;
+  } else {
+    prompt = `Tu es un assistant pour agents immobiliers français. Génère un message de réassurance pour un vendeur.
+
+RÈGLE ABSOLUE : N'invente aucune information. Utilise uniquement les données fournies.
+
+Vendeur : ${bien?.vendeur || 'le vendeur'}
+Bien : ${bien ? bien.type+' au '+bien.adresse+(bien.prix?' — '+bien.prix:'') : 'bien en vente'}
+Délai sans visite : ${jours} jours
+${note ? 'Message personnalisé de l\'agent : '+note : ''}
+
+Format demandé : ${rassurerFormat === 'email' ? 'Email (inclure Objet: en 1ère ligne)' : 'SMS/WhatsApp court (3-5 lignes max)'}
+
+Génère un message chaleureux et professionnel qui :
+- Montre que l'agent est actif et mobilisé pour vendre son bien
+- Explique sans inventer que la recherche d'acquéreurs continue activement
+- Maintient la confiance du vendeur envers l'agent
+- Donne une impression de suivi sérieux et régulier
+- Ton humain, rassurant, pas un template froid
+
+Réponds UNIQUEMENT avec le texte du message, sans commentaire ni explication.`;
+  }
+
+  try {
+    const res = await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+    const data = await res.json();
+    const txt = data.content[0].text.trim();
+    document.getElementById('rassurer-output-text').textContent = txt;
+    rassurerState.generatedText = txt;
+  } catch(e) {
+    document.getElementById('rassurer-output-text').textContent = '❌ Erreur de génération. Réessayez.';
+  }
+}
+
+function copierRassurer() {
+  const txt = rassurerState.generatedText || '';
+  navigator.clipboard.writeText(txt).then(()=>showCopySuccess());
 }
 
 function formatDate(d){ if(!d) return '—'; return new Date(d).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}); }
