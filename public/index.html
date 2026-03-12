@@ -1315,7 +1315,7 @@ textarea.form-input { resize:vertical; min-height:84px; }
       <div class="form-group">
         <label class="form-label">Rattacher à un bien <span class="req">*</span></label>
         <select class="form-input" id="cr-bien-select" onchange="checkBienSelect(this)"><option value="">— Sélectionnez un bien —</option></select>
-        <div id="cr-bien-warning" style="display:none;margin-top:8px;padding:10px 14px;background:var(--warn-light);border:1px solid rgba(180,83,9,0.2);border-radius:var(--r-sm);font-size:12px;color:var(--warn);display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div id="cr-bien-warning" style="display:none;margin-top:8px;padding:10px 14px;background:var(--warn-light);border:1px solid rgba(180,83,9,0.2);border-radius:var(--r-sm);font-size:12px;color:var(--warn);align-items:center;justify-content:space-between;gap:10px">
           <span>⚠️ Sans bien rattaché, le CR sera moins précis.</span>
           <button type="button" class="btn btn-ghost" style="font-size:11px;padding:5px 10px;flex-shrink:0" onclick="closeModal('modal-cr');openModalBien()">+ Créer un bien</button>
         </div>
@@ -2122,6 +2122,8 @@ function openModalCR(bienId){
   const csel = document.getElementById('cr-contact-select');
   csel.innerHTML = '<option value="">— Nouveau visiteur —</option>';
   getAllContacts().filter(c=>c.role==='acheteur').forEach(c=>{ const o=document.createElement('option'); o.value=c.id; o.textContent=c.nom+(c.budget?' · '+c.budget:''); csel.appendChild(o); });
+  // Vérifier l'état du warning après sélection du bien
+  checkBienSelect(sel);
   openModal('modal-cr');
 }
 function checkBienSelect(sel){
@@ -2404,13 +2406,29 @@ function showContactDetail(contactId){
       </div>`;}).join('')}</div>`;
   if(contact.role==='vendeur') html+=`
     <div class="section-header" style="margin-top:24px"><div class="section-title">Biens en vente (${biens.length})</div></div>
-    <div class="bien-grid">${!biens.length?emptyState('🏠','Aucun bien',''):biens.map(b=>`
-      <div class="bien-card" onclick="showFiche('${b.id}')">
-        <div class="bien-type-badge">${b.type}</div>
-        <div class="bien-adresse">${b.adresse}</div>
-        <div class="bien-details">${b.surface?b.surface+'m²':''} ${b.pieces?'· '+b.pieces+' pièces':''}</div>
-        <div class="bien-footer"><div class="bien-visits"><div class="visit-dot"></div>${state.visites.filter(v=>v.bienId===b.id).length} visite(s)</div><div class="bien-prix">${b.prix||'—'}</div></div>
-      </div>`).join('')}</div>`;
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:8px">${!biens.length?emptyState('🏠','Aucun bien lié',''):biens.map(b=>{
+      const nbVisites = state.visites.filter(v=>v.bienId===b.id).length;
+      const statutColor = b.statut==='vendu'?'var(--success)':b.statut==='suspendu'?'var(--text-2)':'var(--accent)';
+      const statutLabel = b.statut==='vendu'?'🏆 Vendu':b.statut==='suspendu'?'⏸ Suspendu':'🟢 Actif';
+      return `<div onclick="showFiche('${b.id}')" style="background:white;border:1px solid var(--border);border-radius:14px;padding:20px 24px;cursor:pointer;transition:box-shadow .15s;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='none'">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span style="font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--accent);background:rgba(201,169,110,0.1);padding:3px 8px;border-radius:20px">${b.type}</span>
+            <span style="font-size:11px;color:${statutColor}">${statutLabel}</span>
+          </div>
+          <div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.adresse}</div>
+          <div style="font-size:13px;color:var(--text-2);display:flex;gap:12px;flex-wrap:wrap">
+            ${b.surface?'<span>'+b.surface+' m²</span>':''}
+            ${b.pieces?'<span>'+b.pieces+' pièces</span>':''}
+            <span>${nbVisites} visite${nbVisites>1?'s':''}</span>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--text)">${b.prix||'—'}</div>
+          <div style="font-size:12px;color:var(--text-2);margin-top:2px">Voir la fiche →</div>
+        </div>
+      </div>`;
+    }).join('')}</div>`;
   document.getElementById('contact-detail-content').innerHTML = html;
   showView('contact-detail',null);
   document.getElementById('topbar-title').textContent = contact.nom;
