@@ -2406,7 +2406,12 @@ function showFiche(bienId){
   const mobAct2 = document.getElementById('mobile-actions'); if(mobAct2) mobAct2.innerHTML='';
   addBtn(actions,'✏ Modifier',()=>openModalModifier(bienId),'btn-ghost');
   addBtn(actions,'🗑 Supprimer',()=>supprimerBien(bienId),'btn-danger');
-  // Séparateur visuel
+  if(bien.vendeur) {
+    const visitesB = state.visites.filter(v=>v.bienId===bienId);
+    const lastB = visitesB.length ? new Date(Math.max(...visitesB.map(v=>new Date(v.savedAt||v.date)))) : new Date(bien.createdAt);
+    const joursB = Math.floor((new Date()-lastB)/86400000);
+    addBtn(actions,'🏠 Rassurer vendeur',()=>ouvrirRassurer('vendeur', encodeURIComponent(bien.vendeur), joursB, encodeURIComponent('Vendeur · '+joursB+' j sans visite'), bienId),'btn-ghost');
+  }
   const sep = document.createElement('div'); sep.style.cssText='width:1px;height:24px;background:var(--border);flex-shrink:0'; actions.appendChild(sep);
   addBtn(actions,'+ Nouvelle visite',()=>openModalCR(bienId),'btn-primary');
 }
@@ -2525,6 +2530,32 @@ function showContactDetail(contactId){
   const actions = document.getElementById('topbar-actions'); actions.innerHTML='';
   const mobAct3 = document.getElementById('mobile-actions'); if(mobAct3) mobAct3.innerHTML='';
   addBtn(actions,'✏ Modifier',()=>openModalModifierContact(contact.id),'btn-ghost');
+  // Bouton rassurer selon le rôle
+  if(contact.role==='acheteur') {
+    const jours = (() => {
+      const visites = state.visites.filter(v=>v.visiteur===contact.nom||v.email===contact.email);
+      const last = visites.length ? new Date(Math.max(...visites.map(v=>new Date(v.savedAt||v.date)))) : new Date(contact.createdAt);
+      return Math.floor((new Date()-last)/86400000);
+    })();
+    addBtn(actions, '💬 Rassurer l\'acheteur', ()=>ouvrirRassurer('acheteur', encodeURIComponent(contact.nom), jours, encodeURIComponent('Acheteur · '+jours+' jour(s) sans contact'), ''), 'btn-ghost');
+  } else {
+    const bienContact = state.biens.find(b=>b.vendeur===contact.nom);
+    if(bienContact) {
+      const visites = state.visites.filter(v=>v.bienId===bienContact.id);
+      const last = visites.length ? new Date(Math.max(...visites.map(v=>new Date(v.savedAt||v.date)))) : new Date(bienContact.createdAt);
+      const jours = Math.floor((new Date()-last)/86400000);
+      addBtn(actions, '🏠 Rassurer le vendeur', ()=>ouvrirRassurer('vendeur', encodeURIComponent(contact.nom), jours, encodeURIComponent('Vendeur · '+jours+' jour(s) sans visite'), bienContact.id), 'btn-ghost');
+    }
+  }
+  // Mobile actions aussi
+  const mobAct3b = document.getElementById('mobile-actions'); if(mobAct3b) {
+    if(contact.role==='acheteur') {
+      addBtn(mobAct3b, '💬 Rassurer', ()=>ouvrirRassurer('acheteur', encodeURIComponent(contact.nom), 0, encodeURIComponent('Acheteur'), ''), 'btn-ghost');
+    } else {
+      const bc = state.biens.find(b=>b.vendeur===contact.nom);
+      if(bc) addBtn(mobAct3b, '🏠 Rassurer', ()=>ouvrirRassurer('vendeur', encodeURIComponent(contact.nom), 0, encodeURIComponent('Vendeur'), bc.id), 'btn-ghost');
+    }
+  }
 }
 
 function renderVisites(){
@@ -2651,9 +2682,17 @@ function renderAlertes() {
   });
 
   const el = document.getElementById('dashboard-alertes');
-  if(!alertes.length){ el.innerHTML=''; return; }
-
   alertes.sort((a,b)=>b.jours-a.jours);
+  if(!alertes.length){
+    el.innerHTML = `<div style="margin-bottom:24px;padding:16px 20px;background:var(--success-light);border:1px solid rgba(21,128,61,0.2);border-radius:var(--r-md);display:flex;align-items:center;gap:12px">
+      <span style="font-size:20px">✅</span>
+      <div>
+        <div style="font-weight:600;font-size:14px;color:var(--success)">Tous vos contacts sont à jour</div>
+        <div style="font-size:12px;color:var(--text-2);margin-top:2px">Aucune relance nécessaire pour l'instant. Continuez comme ça !</div>
+      </div>
+    </div>`;
+    return;
+  }
 
   el.innerHTML = `
     <div style="margin-bottom:24px">
