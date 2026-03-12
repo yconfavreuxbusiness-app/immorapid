@@ -346,9 +346,13 @@ body {
 .main { flex:1; height:100vh; overflow:hidden; overflow-x:hidden; display:flex; flex-direction:column; min-width:0; }
 .topbar {
   flex-shrink:0; background:var(--surface); border-bottom:1px solid var(--border);
-  padding:0 28px; height:58px; display:flex; align-items:center;
-  justify-content:space-between; gap:16px;
+  padding:0 20px; height:58px; display:flex; align-items:center;
+  justify-content:space-between; gap:12px;
 }
+#topbar-actions { display:flex; gap:8px; align-items:center; flex-shrink:0; }
+#topbar-actions .btn-ghost { background:var(--bg); border:1.5px solid var(--border); color:var(--text-2); }
+#topbar-actions .btn-danger { font-size:13px; }
+#topbar-actions .btn { padding:8px 16px; font-size:13px; }
 .topbar-title {
   font-family:'Fraunces',serif; font-size:17px; font-weight:700;
   color:var(--text-1); letter-spacing:-0.3px;
@@ -613,6 +617,9 @@ textarea.form-input { resize:vertical; min-height:84px; }
 .historique-valeurs .old { color:var(--danger); text-decoration:line-through; margin-right:6px; }
 .historique-valeurs .new { color:var(--success); font-weight:600; }
 .historique-date { font-size:10px; color:var(--text-3); margin-top:1px; }
+
+/* MOBILE ACTIONS — caché sur desktop, visible mobile via media query */
+.mobile-actions { display:none; }
 
 /* SCROLLBAR */
 ::-webkit-scrollbar { width:4px; }
@@ -2268,7 +2275,7 @@ function showFiche(bienId){
     <div style="background:white;border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px">
       <div>
         <div style="font-size:11px;color:var(--accent);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">${bien.type}</div>
-        <div style="font-family:'Clash Display',sans-serif;font-size:28px;font-weight:700;letter-spacing:-0.8px;margin-bottom:8px">${bien.adresse}</div>
+        <div style="font-family:'Fraunces',serif;font-size:26px;font-weight:700;letter-spacing:-0.8px;margin-bottom:8px">${bien.adresse}</div>
         <div style="font-size:14px;color:var(--text-2);display:flex;gap:20px;flex-wrap:wrap">
           ${bien.surface?'<span>'+bien.surface+' m²</span>':''}
           ${bien.pieces?'<span>'+bien.pieces+' pièces</span>':''}
@@ -2276,7 +2283,7 @@ function showFiche(bienId){
           ${bien.vendeurTel?'<span>📞 '+bien.vendeurTel+'</span>':''}
         </div>
       </div>
-      <div style="font-family:'Clash Display',sans-serif;font-size:28px;font-weight:700">${bien.prix||'—'}</div>
+      <div style="font-family:'Fraunces',serif;font-size:26px;font-weight:700">${bien.prix||'—'}</div>
     </div>
     <div class="section-header"><div class="section-title">Visites (${visites.length})</div><button class="btn btn-primary" onclick="openModalCR('${bienId}')">+ Nouvelle visite</button></div>
     <div class="visite-list">${!visites.length ? emptyState('📋','Aucune visite','Générez votre premier CR.') : visites.map(v=>`
@@ -2307,6 +2314,8 @@ function showFiche(bienId){
   const mobAct2 = document.getElementById('mobile-actions'); if(mobAct2) mobAct2.innerHTML='';
   addBtn(actions,'✏ Modifier',()=>openModalModifier(bienId),'btn-ghost');
   addBtn(actions,'🗑 Supprimer',()=>supprimerBien(bienId),'btn-danger');
+  // Séparateur visuel
+  const sep = document.createElement('div'); sep.style.cssText='width:1px;height:24px;background:var(--border);flex-shrink:0'; actions.appendChild(sep);
   addBtn(actions,'+ Nouvelle visite',()=>openModalCR(bienId),'btn-primary');
 }
 
@@ -2360,7 +2369,7 @@ function showContactDetail(contactId){
     <div style="background:white;border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
       <div class="contact-avatar ${contact.role==='acheteur'?'avatar-acheteur':'avatar-vendeur'}" style="width:64px;height:64px;font-size:24px;flex-shrink:0">${initials}</div>
       <div>
-        <div style="font-family:'Clash Display',sans-serif;font-size:28px;font-weight:700;letter-spacing:-0.8px">${contact.nom}</div>
+        <div style="font-family:'Fraunces',serif;font-size:26px;font-weight:700;letter-spacing:-0.8px">${contact.nom}</div>
         <div style="display:flex;gap:16px;font-size:14px;color:var(--text-2);margin-top:6px;flex-wrap:wrap">
           <span class="contact-role ${contact.role==='acheteur'?'role-acheteur':'role-vendeur'}">${contact.role==='acheteur'?'Acheteur':'Vendeur'}</span>
           ${contact.tel?'<span>📞 '+contact.tel+'</span>':''}
