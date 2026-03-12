@@ -2849,9 +2849,19 @@ Réponds UNIQUEMENT avec le texte du message, sans commentaire ni explication.`;
   }
 }
 
-function copierRassurer() {
+async function copierRassurer() {
   const txt = rassurerState.generatedText || '';
-  navigator.clipboard.writeText(txt).then(()=>showCopySuccess());
+  await navigator.clipboard.writeText(txt);
+  showCopySuccess();
+  // Enregistrer la date de copie = message envoyé
+  const contact = state.contacts.find(c=>c.nom===rassurerState.nom);
+  if(contact) {
+    const now = new Date().toISOString();
+    await supa.from('contacts').update({last_contact_at: now}).eq('id', contact.id);
+    contact.lastContactAt = now;
+    const alertesEl = document.getElementById('dashboard-alertes');
+    if(alertesEl) renderAlertes();
+  }
 }
 
 function formatDate(d){ if(!d) return '—'; return new Date(d).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}); }
